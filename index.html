@@ -241,7 +241,7 @@ function route(){
   else{home(); if(['rooms','cases','services','contact'].includes(h)){const el=document.getElementById(h); if(el) el.scrollIntoView()} else scrollTo(0,0)}
 }
 const A={}; const loaded={};
-async function bundle(k){ if(loaded[k]) return loaded[k]; loaded[k]=fetch('a/'+k+'.json').then(r=>r.json()).then(m=>Object.assign(A,m)).catch(()=>{}); return loaded[k]; }
+async function bundle(k){ if(loaded[k]) return loaded[k]; loaded[k]=fetch(k+'.json').then(r=>r.json()).then(m=>Object.assign(A,m)).catch(()=>{}); return loaded[k]; }
 function hydrate(){ document.querySelectorAll('img[data-p]').forEach(i=>{ const u=A[i.dataset.p]; if(u && i.src!==u) i.src=u; }); }
 async function show(){ route(); await bundle('_home'); hydrate(); const h=location.hash.slice(1); if(h.startsWith('b-')){ await bundle(h.slice(2)); hydrate(); } }
 addEventListener('hashchange',show); show();
