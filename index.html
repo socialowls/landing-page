@@ -26,6 +26,7 @@
 }
 html{scroll-behavior:smooth}
 [hidden]{display:none!important}
+.xlinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.xlinks a{font-weight:700;font-size:14px;color:var(--ink);background:var(--lime);padding:8px 14px;border-radius:999px;text-decoration:none}.xlinks a:hover{background:var(--mint)}
 .soc{display:flex;flex-wrap:wrap;gap:10px}.soc a{padding:10px 16px;border-radius:999px;background:var(--ink);color:#fff;text-decoration:none;font-weight:600;font-size:14px}.soc a:hover{background:var(--mid)}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
@@ -216,34 +217,43 @@ function roomView(r){
   const bs=roomBrands(r);
   app.innerHTML=`<a class="back" href="#rooms">← Floor plan</a>
   <div class="roomhead ${ROOMCOL[r]}"><div class="eyebrow" style="color:inherit;opacity:.8">Room ${String(r).padStart(2,'0')} · ${esc(R.ind)}</div><h1>${esc(R.name)}</h1><p>${esc(R.line)}</p></div>
-  <div class="bgrid">${bs.map(b=>`<a class="bcard" href="#b-${b.slug}"><div class="lgo">${b.logo?`<img data-p="${b.logo}" alt="${esc(b.name)}" loading="lazy">`:`<b>${esc(b.name)}</b>`}</div>
-    <div class="bt"><strong>${esc(b.name)}</strong><div class="chips">${b.kind.filter(k=>k!=='Reels').map(k=>`<span class="chip">${k}</span>`).join('')}${b.reels.length?`<span class="chip reel">▶ ${b.reels.length} reels</span>`:''}</div></div></a>`).join('')}</div>
+  <div class="bgrid">${bs.map(b=>`<a class="bcard" href="#${r===9?'id':r===10?'ph':'b'}-${b.slug}"><div class="lgo">${b.logo?`<img data-p="${b.logo}" alt="${esc(b.name)}" loading="lazy">`:`<b>${esc(b.name)}</b>`}</div>
+    <div class="bt"><strong>${esc(b.name)}</strong><div class="chips">${(r===9?['Branding']:r===10?['Photography']:b.kind.filter(k=>!['Reels','Branding','Photography'].includes(k))).map(k=>`<span class="chip">${k}</span>`).join('')}${r<9&&b.reels.length?`<span class="chip reel">▶ ${b.reels.length} reels</span>`:''}</div></div></a>`).join('')}</div>
   ${R.others.length?`<div class="others"><h2 class="sub">Also in this room</h2><div class="row">${R.others.map(o=>`<div title="${esc(o.name)}"><img data-p="${o.logo}" alt="${esc(o.name)}" loading="lazy"></div>`).join('')}</div></div>`:''}
   <div class="pager">${r>1?`<a href="#room-${r-1}"><small>Previous room</small>${esc(S.rooms[r-2].name)}</a>`:'<span></span>'}${r<10?`<a href="#room-${r+1}"><small>Next room</small>${esc(S.rooms[r].name)}</a>`:''}</div>`;
 }
-function brandView(slug){
+function brandView(slug,mode){
   const b=S.brands[slug]; if(!b) return home();
-  const r=b.room; const list=roomBrands(r); const i=list.findIndex(x=>x.slug===slug);
+  mode=mode||'b';
+  const hasSoc=b.posts.length||b.reels.length;
+  if(mode==='b'&&!hasSoc) mode=b.kind.includes('Branding')?'id':'ph';
+  const r=mode==='id'?9:mode==='ph'?10:b.room; const list=roomBrands(r); const i=list.findIndex(x=>x.slug===slug);
   const prev=list[i-1], next=list[i+1];
+  const chips=mode==='id'?['Branding']:mode==='ph'?['Photography']:b.kind.filter(k=>!['Branding','Photography'].includes(k));
+  const other=[]; if(mode!=='b'&&hasSoc) other.push(['b','See the social media']); if(mode!=='id'&&b.kind.includes('Branding')) other.push(['id','See the branding']); if(mode!=='ph'&&b.kind.includes('Photography')) other.push(['ph','See the photography']);
+  const PH=new Set(['img/slide-103.jpg','img/slide-104.jpg']);
+  const sl=b.slides.filter(s=>!(b.kind.includes('Branding')&&b.kind.includes('Photography'))||(mode==='ph'?PH.has(s.img):!PH.has(s.img))).map(s=>`<figure><button class="shot" type="button" data-z="${s.img}"><img data-p="${s.img}" alt="${esc(b.name)}" loading="lazy"></button>${s.cap?`<figcaption>${esc(s.cap)}</figcaption>`:''}</figure>`).join('');
+  const showSlides=mode!=='b'||(!b.kind.includes('Branding')&&!b.kind.includes('Photography'));
   app.innerHTML=`<a class="back" href="#room-${r}">← ${esc(S.rooms[r-1].name)}</a>
   <div class="bhead"><div class="lgo">${b.logo?`<img data-p="${b.logo}" alt="${esc(b.name)} logo">`:`<b style="color:var(--mid);font-size:24px">${esc(b.name)}</b>`}</div>
     <div><div class="eyebrow">${esc(S.rooms[r-1].name)} · ${esc(S.rooms[r-1].ind)}</div><h1>${esc(b.name)}</h1>${b.tagline?`<div class="tag">${esc(b.tagline)}</div>`:''}
-    <div class="chips" style="margin-top:14px">${b.kind.map(k=>`<span class="chip">${k}</span>`).join('')}</div></div></div>
-  ${b.reels.length?`<h2 class="sub">Reels · tap to watch</h2><div class="reels">${b.reels.map(x=>`<a class="reel" href="${x.url}" target="_blank" rel="noopener"><div class="th"><img data-p="${x.thumb}" alt="" loading="lazy"><div class="pl"><i></i></div></div><span>${esc(x.title)}</span></a>`).join('')}</div>`:''}
-  ${b.posts.length?`<h2 class="sub">The work</h2><div class="posts">${b.posts.map(p=>`<button class="shot" type="button" data-z="${p}"><img data-p="${p}" alt="${esc(b.name)} post" loading="lazy"></button>`).join('')}</div>`:''}
-  ${b.slides.length?`<h2 class="sub">${b.kind.includes('Branding')?'Identity & applications':'Behind the work'}</h2><div class="slides">${b.slides.map(s=>`<figure><button class="shot" type="button" data-z="${s.img}"><img data-p="${s.img}" alt="${esc(b.name)}" loading="lazy"></button>${s.cap?`<figcaption>${esc(s.cap)}</figcaption>`:''}</figure>`).join('')}</div>`:''}
-  <div class="pager">${prev?`<a href="#b-${prev.slug}"><small>Previous</small>${esc(prev.name)}</a>`:'<span></span>'}${next?`<a href="#b-${next.slug}"><small>Next</small>${esc(next.name)}</a>`:`<a href="#rooms"><small>Done here?</small>Back to the floor plan</a>`}</div>`;
+    <div class="chips" style="margin-top:14px">${chips.map(k=>`<span class="chip">${k}</span>`).join('')}</div>
+    ${other.length?`<div class="xlinks">${other.map(([m,t])=>`<a href="#${m}-${b.slug}">${t} →</a>`).join('')}</div>`:''}</div></div>
+  ${mode==='b'&&b.reels.length?`<h2 class="sub">Reels · tap to watch</h2><div class="reels">${b.reels.map(x=>`<a class="reel" href="${x.url}" target="_blank" rel="noopener"><div class="th"><img data-p="${x.thumb}" alt="" loading="lazy"><div class="pl"><i></i></div></div><span>${esc(x.title)}</span></a>`).join('')}</div>`:''}
+  ${mode==='b'&&b.posts.length?`<h2 class="sub">Social media posts</h2><div class="posts">${b.posts.map(p=>`<button class="shot" type="button" data-z="${p}"><img data-p="${p}" alt="${esc(b.name)} post" loading="lazy"></button>`).join('')}</div>`:''}
+  ${showSlides&&b.slides.length?`<h2 class="sub">${mode==='id'?'Identity & applications':mode==='ph'?'Photography':'Behind the work'}</h2><div class="slides">${sl}</div>`:''}
+  <div class="pager">${prev?`<a href="#${mode}-${prev.slug}"><small>Previous</small>${esc(prev.name)}</a>`:'<span></span>'}${next?`<a href="#${mode}-${next.slug}"><small>Next</small>${esc(next.name)}</a>`:`<a href="#rooms"><small>Done here?</small>Back to the floor plan</a>`}</div>`;
 }
 function route(){
   const h=location.hash.slice(1);
   if(/^room-\d+$/.test(h)){roomView(+h.split('-')[1]);scrollTo(0,0)}
-  else if(h.startsWith('b-')){brandView(h.slice(2));scrollTo(0,0)}
+  else if(/^(b|id|ph)-/.test(h)){const m=h.split('-')[0];brandView(h.slice(m.length+1),m);scrollTo(0,0)}
   else{home(); if(['rooms','cases','services','contact'].includes(h)){const el=document.getElementById(h); if(el) el.scrollIntoView()} else scrollTo(0,0)}
 }
 const A={}; const loaded={};
 async function bundle(k){ if(loaded[k]) return loaded[k]; loaded[k]=fetch(k+'.json').then(r=>r.json()).then(m=>Object.assign(A,m)).catch(()=>{}); return loaded[k]; }
 function hydrate(){ document.querySelectorAll('img[data-p]').forEach(i=>{ const u=A[i.dataset.p]; if(u && i.src!==u) i.src=u; }); }
-async function show(){ route(); await bundle('_home'); hydrate(); const h=location.hash.slice(1); if(h.startsWith('b-')){ await bundle(h.slice(2)); hydrate(); } }
+async function show(){ route(); await bundle('_home'); hydrate(); const h=location.hash.slice(1); const mm=h.match(/^(b|id|ph)-(.+)$/); if(mm){ await bundle(mm[2]); hydrate(); } }
 addEventListener('hashchange',show); show();
 const lb=document.getElementById('lb'), lbi=document.getElementById('lbi');
 document.addEventListener('click',e=>{
