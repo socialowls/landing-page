@@ -146,18 +146,39 @@ def kind_sentence(b):
     return ', '.join(parts[:-1]) + (' and ' if len(parts) > 1 else '') + parts[-1]
 
 # ---------- 4. home ----------
+CKEYS = {'UAE': 'uae', 'Saudi Arabia': 'ksa', 'Oman': 'om', 'Kuwait': 'kw', 'Middle East': 'me', 'Europe': 'eu', 'Egypt, UAE & Oman': 'uae eg om', 'Egypt': 'eg'}
+FILTERS = [('uae', 'UAE'), ('ksa', 'KSA'), ('om', 'Oman'), ('kw', 'Kuwait'), ('me', 'Middle East'), ('eu', 'Europe'), ('eg', 'Egypt')]
+def country_counts():
+    seen = {}
+    for r in ROOMS:
+        for c, its in by_country(room_items(r['r'])):
+            for it in its:
+                if it['name'].strip().lower() != 'social owls': seen.setdefault(it['name'].strip().lower(), CKEYS[c])
+    cnt = {k: 0 for k, _ in FILTERS}
+    for v in seen.values():
+        for k in v.split(): cnt[k] += 1
+    return cnt
 def floor_plan():
+    cnt = country_counts()
+    chips = '<button class="fchip on" data-f="">All</button>' + ''.join(
+        f'<button class="fchip" data-f="{k}"><b class="dot k-{k if k!="om" else "om"}"></b>{e(n)} <small>{cnt[k]}</small></button>' for k, n in FILTERS if cnt[k])
+    summary = 'Projects by market: ' + ' · '.join(f'{n} {cnt[k]}' for k, n in FILTERS if cnt[k])
     out = []
     for r in ROOMS:
         flow = []
         for c, its in by_country(room_items(r['r'])):
             seen = set(); tiles = []
             for it in its:
-                if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(logo_tile(it, CCLS[c]))
-            if tiles: flow.append(f'<span class="cl {CCLS[c]}"><em class="ctag {CCLS[c]}">{e(CSHORT.get(c, c))}</em>' + ''.join(tiles) + '</span>')
+                if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(f'<i data-c="{CKEYS[c]}"><img src="{src(it["logo"])}" alt="{e(it["name"])} logo" loading="lazy"></i>')
+            if not tiles: continue
+            tag = f'<em class="ctag {CCLS[c]}" data-c="{CKEYS[c]}">{e(CSHORT.get(c, c))}</em>'
+            if c == 'Egypt': flow.append(f'<span class="cl eg">{tag}' + ''.join(tiles) + '</span>')
+            else: flow.append(f'<span class="cl">{tag}' + ''.join(tiles) + '</span>')
         out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>
 <div class="lg">{''.join(flow)}</div></a>''')
-    return '<div class="plan">' + ''.join(out) + '</div>'
+    return (f'<div class="cfilter" role="group" aria-label="Filter work by country">{chips}</div>'
+            f'<p class="csum">{e(summary)}.</p>'
+            '<div class="plan">' + ''.join(out) + '</div>')
 
 CASES = [
  dict(slug='m-group-natur-sutures', label='M Group', eyebrow='Case study · The Clinic', title='Engagement beat awareness.', sub='On LinkedIn, for M Group Holding.',
@@ -498,8 +519,20 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 .room .lg{gap:8px}
 .room .cl{display:inline-flex;flex-wrap:wrap;align-items:center;gap:5px;padding:5px;border-radius:12px;max-width:100%}
 .room .cl .ctag{margin:0 2px}
-.cl.k-uae{background:#eef6dd}.cl.k-ksa{background:#e3f4f3}.cl.k-om{background:#efe9f6}.cl.k-kw{background:#e6e0f2}
-.cl.k-eg{background:#ece8f2}.cl.k-me{background:#fbeedd}.cl.k-eu{background:#f1eff4}.cl.k-multi{background:#eef1f8}
+.room .cl{background:#f4f1f8}.room .cl.eg{background:none;padding:5px 0}
+.room .lg i{border-color:#e6e0ef!important;transition:opacity .25s,transform .25s}
+.cfilter{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.fchip{font:600 13px/1 'Google Sans Flex',sans-serif;color:#2a1645;background:#fff;border:1.5px solid #e2dcec;border-radius:999px;padding:9px 14px;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.fchip small{font-size:11px;color:#765da8;font-weight:600}
+.fchip .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot.k-uae{background:#bcda7b}.dot.k-ksa{background:#7fcfcb}.dot.k-om{background:#c9bbdc}.dot.k-kw{background:#765da8}.dot.k-me{background:#f0c48f}.dot.k-eu{background:#fff;box-shadow:inset 0 0 0 1.5px #2a1645}.dot.k-eg{background:#2a1645}
+.fchip.on{background:#2a1645;color:#fff;border-color:#2a1645}.fchip.on small{color:#c9bbdc}
+.csum{font-size:13px;color:#6b5d82;margin:0 0 22px}
+.plan.filtering .lg i:not(.hit),.plan.filtering .ctag:not(.hit){opacity:.14}
+.plan.filtering .cl:not(.hit){background:transparent}
+.plan.filtering .lg i.hit{transform:scale(1.04)}
+.plan.filtering .room:not(.hit){opacity:.45}
+@media(max-width:700px){.cfilter{flex-wrap:nowrap;overflow-x:auto;margin:0 -20px 10px;padding:0 20px 4px;scrollbar-width:none}.cfilter::-webkit-scrollbar{display:none}.fchip{flex:none}}
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
 
 /* horizontal rails for posts and reels */
@@ -514,7 +547,8 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 .rail-btn[hidden]{display:none}
 @media (max-width:760px){.track{gap:10px;margin-inline:-16px;padding-inline:16px;scroll-padding-left:16px}.track.posts .shot{height:300px}.track.reels .reel{width:170px}.rail-btn{display:none}}
 ''')
-open(REPO + '/site.js', 'w').write('''const lb=document.getElementById('lb'),lbi=document.getElementById('lbi');
+open(REPO + '/site.js', 'w').write('''const pl=document.querySelector('.plan');document.querySelectorAll('.fchip').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.fchip').forEach(x=>x.classList.toggle('on',x===b));const f=b.dataset.f;pl.classList.toggle('filtering',!!f);pl.querySelectorAll('.hit').forEach(x=>x.classList.remove('hit'));if(!f)return;pl.querySelectorAll('[data-c]').forEach(x=>{if(x.dataset.c.split(' ').includes(f)){x.classList.add('hit');const cl=x.closest('.cl');cl&&cl.classList.add('hit');x.closest('.room').classList.add('hit')}})}));
+const lb=document.getElementById('lb'),lbi=document.getElementById('lbi');
 document.addEventListener('click',e=>{const z=e.target.closest('[data-z]');if(z){lbi.src=z.dataset.z;lb.hidden=false;return}
 const c=e.target.closest('[data-copy]');if(c){navigator.clipboard&&navigator.clipboard.writeText(c.dataset.copy).then(()=>{c.textContent='Copied';setTimeout(()=>c.textContent='Copy',1500)});return}
 if(e.target===lb||e.target.id==='lbx'){lb.hidden=true;lbi.src=''}});
