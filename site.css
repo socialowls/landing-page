@@ -182,7 +182,22 @@ header.top .brand img{height:40px}
 .sec-lead{color:var(--fg-dim);font-size:17px;max-width:70ch;margin:14px 0 6px}
 .sec-head .more{font-weight:700;color:var(--mid);text-decoration:none}
 .bcard .bdesc{font-size:14px;color:var(--fg-dim);line-height:1.35}
-.case{margin:0}.case figcaption{margin-top:10px;color:var(--fg-dim);font-size:15px}.case figcaption strong{color:var(--ink)}
+.how{display:block;margin:22px 0 0;font-size:15px;font-weight:600;color:var(--fg-dim)}.how span{color:var(--mid);margin:0 4px;background:none;border:0;padding:0}
+.cases{grid-template-columns:1fr;gap:16px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px}
+.case-top{display:grid;grid-template-columns:1fr 200px;gap:24px;align-items:start}
+.case h3{font-size:clamp(26px,3.4vw,40px);font-weight:800;margin-top:8px}
+.case-sub{font-family:var(--serif);font-style:italic;font-weight:700;color:var(--mid);font-size:clamp(19px,2.2vw,24px);margin:6px 0 0}
+.case-intro{color:var(--fg-dim);margin:10px 0 0;max-width:62ch}
+.case-logo{display:grid;place-items:center;height:120px;border:1px solid var(--line);border-radius:16px;padding:16px}
+.case-logo img{max-width:100%;max-height:80px;object-fit:contain}
+.case-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.cc{background:var(--bg);border-radius:14px;padding:16px 18px;border-top:3px solid var(--mid)}
+.cc:nth-child(1){border-top-color:var(--acc-lime)}.cc:nth-child(2){border-top-color:var(--acc-mint)}.cc:nth-child(3){border-top-color:var(--acc-lav)}
+.cc h4{margin:0 0 6px;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--mid)}
+.cc p{margin:0;font-size:15px;color:var(--ink)}
+.case-link{display:inline-block;margin-top:16px;font-weight:700;color:var(--mid);text-decoration:none}
+@media (max-width:760px){.case{padding:20px}.case-top{grid-template-columns:1fr}.case-logo{order:-1;width:140px;height:84px}.case-cols{grid-template-columns:1fr}}
 .faq{display:grid;gap:10px;max-width:860px}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
 .faq summary{font-weight:800;cursor:pointer;color:var(--ink)}

@@ -135,9 +135,23 @@ def floor_plan():
 <div class="lg">{''.join(logo_tile(x) for x in lg)}</div></a>''')
     return '<div class="plan">' + ''.join(out) + '</div>'
 
-CASES = [("Engagement beat awareness.", "M Group Holding on LinkedIn: organic posts and paid campaigns compared side by side, so the budget went where it worked."),
-         ("Built from day one.", "Project Pavilion, from blank page to brand: identity, guidelines and the content that launched it."),
-         ("The grammar of a brand.", "her’, premium sportswear for women: the thinking behind the identity, turned into a carousel and a reel.")]
+CASES = [
+ dict(slug='m-group-natur-sutures', label='M Group', eyebrow='Case study · The Clinic', title='Engagement beat awareness.', sub='On LinkedIn, for M Group Holding.',
+      intro='A medical manufacturer with operations in Egypt, Sudan and Ghana. The question: which LinkedIn spend was actually working?',
+      cols=[('The brief','Make sense of M Group’s LinkedIn: organic posts and paid campaigns, side by side, with one clear answer on where the budget should go.'),
+            ('What we did','Built an interactive performance dashboard covering organic and paid metrics, then compared campaign objectives head to head.'),
+            ('What we found','The engagement-focused campaign delivered strong CTR and follower growth against a brand-awareness boost. Video beat text posts on engagement.')]),
+ dict(slug='project-pavilion', eyebrow='Case study · Branding', title='Built from day one.', sub='Project Pavilion, from blank page to brand.',
+      intro='A project-management software brand we have worked with from the very beginning, before it had a logo, a look or a voice.',
+      cols=[('The brief','Give a new software system a brand people trust with their work: clear, organised and confident from the first screen.'),
+            ('What we did','Logo, brand guidelines and the line “Plan. Track. Deliver.” Then the ongoing content and design that put the brand to work.'),
+            ('What it means','One partner from first sketch to everyday posts, so the brand that launched is the brand people still see today.')]),
+ dict(slug='her', eyebrow='Case study · Branding', title='The grammar of a brand.', sub='her’, premium sportswear for women.',
+      intro='Branding and brand guidelines for a premium women’s sportswear label, built around one small, possessive mark.',
+      cols=[('The brief','A sportswear brand for women that feels personal, premium and theirs, not another logo on a waistband.'),
+            ('What we did','The her’ identity and guidelines: the possessive apostrophe, a nude, sage, khaki and gold palette, and type with character.'),
+            ('How we told it','“The Grammar of a Brand”: the thinking behind the identity, turned into a 7-slide carousel and a reel.')]),
+]
 FAQ = [
  ("What does Social Owls do?", "Social Owls is a strategy-first social media and branding agency. We build brand positioning, visual identities and social media content systems that connect content to business results, from strategy and design to community management, paid media and reporting."),
  ("Where is Social Owls based?", "We have two offices, in Cairo, Egypt and Dubai, UAE, and we work with brands across the UAE & Egypt."),
@@ -147,6 +161,13 @@ FAQ = [
  ("How do I start a project with Social Owls?", "Email letstalk@socialowls.agency or call +971 50 508 9055 (UAE) or +20 155 633 1102 (Egypt)."),
 ]
 
+def case_card(c):
+    b = B[c['slug']]
+    cols = ''.join(f'<div class="cc"><h4>{e(h)}</h4><p>{e(t)}</p></div>' for h, t in c['cols'])
+    return f'''<article class="case"><div class="case-top"><div><div class="eyebrow">{e(c["eyebrow"])}</div><h3>{e(c["title"])}</h3><p class="case-sub">{e(c["sub"])}</p><p class="case-intro">{e(c["intro"])}</p></div>
+<a class="case-logo" href="{main_url(b)}"><img src="{src(b["logo"])}" alt="{e(b["name"])} logo" loading="lazy"></a></div>
+<div class="case-cols">{cols}</div><a class="case-link" href="{main_url(b)}">See the {e(c.get("label") or b["name"])} work →</a></article>'''
+
 def home_page():
     nb = len(B)
     branding_cards = ''.join(f'''<a class="bcard" href="{id_url(b)}"><div class="lgo"><img src="{src(b["logo"])}" alt="{e(b["name"])} logo" loading="lazy"></div><div class="bt"><strong>{e(b["name"])}</strong><span class="bdesc">{e(b.get("tagline") or "")}</span></div></a>''' for b in BRANDING if b.get('logo'))
@@ -155,7 +176,7 @@ def home_page():
   <div>
     <h1>Welcome to <span class="serif">the Nest.</span></h1>
     <p class="lead">Social Owls is a strategy-first social media and branding agency in the UAE &amp; Egypt. We’ve built, grown and given a voice to 66 brands. Ten rooms, one per industry: pick a room, meet the brand, see the work.</p>
-    <div class="how"><span><b>1</b>Pick a room</span><span><b>2</b>Meet the brand</span><span><b>3</b>See the posts, reels and identities</span></div>
+    <p class="how">Pick a room <span>→</span> meet the brand <span>→</span> see the posts, reels and identities.</p>
   </div>
   <div class="stats">
     <div class="stat s1"><b>66</b><span>Brand partners</span></div>
@@ -183,7 +204,7 @@ def home_page():
 </section>
 <section id="cases">
   <div class="sec-head"><div><div class="eyebrow">Case studies</div><h2>Results, <span class="serif">not noise.</span></h2></div></div>
-  <div class="cases">{''.join(f'<figure class="case"><button class="shot" data-z="{src(c)}" type="button"><img src="{src(c)}" alt="Case study: {e(t)} {e(d)}" loading="lazy"></button><figcaption><strong>{e(t)}</strong> {e(d)}</figcaption></figure>' for c, (t, d) in zip(S["cases"], CASES))}</div>
+  <div class="cases">{''.join(case_card(c) for c in CASES)}</div>
 </section>
 <section id="services">
   <div class="sec-head"><div><div class="eyebrow">How the house runs</div><h2>Seven <span class="serif">services.</span></h2></div></div>
@@ -332,7 +353,22 @@ EXTRA_CSS = '''
 .sec-lead{color:var(--fg-dim);font-size:17px;max-width:70ch;margin:14px 0 6px}
 .sec-head .more{font-weight:700;color:var(--mid);text-decoration:none}
 .bcard .bdesc{font-size:14px;color:var(--fg-dim);line-height:1.35}
-.case{margin:0}.case figcaption{margin-top:10px;color:var(--fg-dim);font-size:15px}.case figcaption strong{color:var(--ink)}
+.how{display:block;margin:22px 0 0;font-size:15px;font-weight:600;color:var(--fg-dim)}.how span{color:var(--mid);margin:0 4px;background:none;border:0;padding:0}
+.cases{grid-template-columns:1fr;gap:16px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px}
+.case-top{display:grid;grid-template-columns:1fr 200px;gap:24px;align-items:start}
+.case h3{font-size:clamp(26px,3.4vw,40px);font-weight:800;margin-top:8px}
+.case-sub{font-family:var(--serif);font-style:italic;font-weight:700;color:var(--mid);font-size:clamp(19px,2.2vw,24px);margin:6px 0 0}
+.case-intro{color:var(--fg-dim);margin:10px 0 0;max-width:62ch}
+.case-logo{display:grid;place-items:center;height:120px;border:1px solid var(--line);border-radius:16px;padding:16px}
+.case-logo img{max-width:100%;max-height:80px;object-fit:contain}
+.case-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.cc{background:var(--bg);border-radius:14px;padding:16px 18px;border-top:3px solid var(--mid)}
+.cc:nth-child(1){border-top-color:var(--acc-lime)}.cc:nth-child(2){border-top-color:var(--acc-mint)}.cc:nth-child(3){border-top-color:var(--acc-lav)}
+.cc h4{margin:0 0 6px;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--mid)}
+.cc p{margin:0;font-size:15px;color:var(--ink)}
+.case-link{display:inline-block;margin-top:16px;font-weight:700;color:var(--mid);text-decoration:none}
+@media (max-width:760px){.case{padding:20px}.case-top{grid-template-columns:1fr}.case-logo{order:-1;width:140px;height:84px}.case-cols{grid-template-columns:1fr}}
 .faq{display:grid;gap:10px;max-width:860px}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
 .faq summary{font-weight:800;cursor:pointer;color:var(--ink)}
