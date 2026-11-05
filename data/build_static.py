@@ -215,8 +215,8 @@ def floor_plan():
                 if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(f'<i data-c="{CKEYS[c]}"><img src="{src(it["logo"])}" alt="{e(it["name"])} logo" loading="lazy"{logo_fit(src(it["logo"]))}></i>')
             if not tiles: continue
             tag = f'<em class="ctag {CCLS[c]}" data-c="{CKEYS[c]}">{e(CSHORT.get(c, c))}</em>'
-            if c == 'Egypt': flow.append(f'<span class="cl eg">{tag}' + ''.join(tiles) + '</span>')
-            else: flow.append(f'<span class="cl">{tag}' + ''.join(tiles) + '</span>')
+            body = '<span class="lt">' + ''.join(tiles) + '</span>'
+            flow.append(f'<span class="cl{" eg" if c == "Egypt" else ""}">{tag}{body}</span>')
         out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>
 <div class="lg">{''.join(flow)}</div></a>''')
     return (f'<div class="cfilter" role="group" aria-label="Filter work by country">{chips}</div>'
@@ -577,7 +577,19 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 .plan.filtering .cl:not(.hit){background:transparent}
 .plan.filtering .lg i.hit{transform:scale(1.04)}
 .plan.filtering .room:not(.hit){opacity:.45}
-@media(max-width:700px){.cfilter{flex-wrap:nowrap;overflow-x:auto;margin:0 -20px 10px;padding:0 20px 4px;scrollbar-width:none}.cfilter::-webkit-scrollbar{display:none}.fchip{flex:none}}
+.room .lt{display:contents}
+@media(max-width:700px){
+.cfilter{gap:6px;margin-bottom:18px}
+.fchip{font-size:10px;letter-spacing:.1em;padding:8px 11px;gap:6px}
+.fchip small{font-size:10px}
+.room .lg{display:flex;flex-direction:column;align-items:stretch;gap:6px}
+.room .cl,.room .cl.eg{display:grid;grid-template-columns:62px 1fr;align-items:start;gap:8px;padding:8px;border-radius:12px;width:100%;box-sizing:border-box}
+.room .cl.eg{background:#f4f1f8}
+.room .cl .ctag{margin:0;justify-self:start;align-self:start;margin-top:8px;font-size:8.5px;letter-spacing:.08em;padding:4px 7px}
+.room .cl .ctag.k-multi{white-space:normal;line-height:1.35;padding:3px 6px;background:#2a1645;text-shadow:none}
+.room .lt{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.room .lt i{width:auto!important;height:auto!important;aspect-ratio:4/3}
+}
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
 
 /* horizontal rails for posts and reels */
