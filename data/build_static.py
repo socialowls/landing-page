@@ -19,13 +19,48 @@ for f in glob.glob(REPO + '/data/*.json'):
         for k, v in d.items():
             if isinstance(v, str) and v.startswith('data:image'): assets[k] = v
 EXT = {'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/svg+xml': '.svg', 'image/gif': '.gif'}
+from PIL import Image as _Im
+import io as _io
+LOGO_R = {}  # public path -> aspect ratio after trim
+def trim_logo(raw, p):
+    """Crop empty margins (transparent or near-white) so every logo's ink fills its box the same way."""
+    try:
+        im = _Im.open(_io.BytesIO(raw)); im.load()
+        rgba = im.convert('RGBA')
+        a = rgba.getchannel('A').point(lambda x: 255 if x > 16 else 0)
+        rgb = rgba.convert('RGB')
+        from PIL import ImageChops
+        bgc = rgb.getpixel((0, 0))
+        diff = ImageChops.difference(rgb, _Im.new('RGB', rgb.size, bgc)).convert('L').point(lambda x: 255 if x > 28 else 0)
+        corners_opaque = all(rgba.getpixel(c)[3] > 200 for c in [(0, 0), (rgba.width-1, 0), (0, rgba.height-1), (rgba.width-1, rgba.height-1)])
+        same_corners = len({rgb.getpixel(c) for c in [(0, 0), (rgb.width-1, 0), (0, rgb.height-1), (rgb.width-1, rgb.height-1)]}) == 1
+        light_bg = sum(bgc) > 660
+        if corners_opaque and same_corners and light_bg: mask = ImageChops.multiply(diff, a)
+        elif not corners_opaque: mask = a
+        else: mask = None   # logo sits on its own coloured block: keep it whole
+        bb = mask.getbbox() if mask is not None else None
+        if bb:
+            pad = round(max(bb[2]-bb[0], bb[3]-bb[1]) * 0.03)
+            bb = (max(0, bb[0]-pad), max(0, bb[1]-pad), min(im.width, bb[2]+pad), min(im.height, bb[3]+pad))
+            im = im.crop(bb)
+        LOGO_R['/' + p] = im.width / max(1, im.height)
+        if bb:
+            out = _io.BytesIO(); fmt = {'.png': 'PNG', '.webp': 'WEBP', '.jpg': 'JPEG'}[os.path.splitext(p)[1]]
+            (im.convert('RGB') if fmt == 'JPEG' else im).save(out, fmt, **({'quality': 92} if fmt != 'PNG' else {}))
+            return out.getvalue()
+    except Exception as ex:
+        print('trim skip', p, ex)
+    return raw
 PATH = {}  # key -> public path
 for k, v in assets.items():
     mime = v[5:v.index(';')]
     root, _ = os.path.splitext(k)
     p = root + EXT.get(mime, '.bin')
     os.makedirs(os.path.dirname(REPO + '/' + p), exist_ok=True)
-    open(REPO + '/' + p, 'wb').write(base64.b64decode(v.split(',', 1)[1]))
+    raw = base64.b64decode(v.split(',', 1)[1])
+    if p.startswith('logos/') and not p.startswith('logos/so-') and not p.endswith('.svg'):
+        raw = trim_logo(raw, p)
+    open(REPO + '/' + p, 'wb').write(raw)
     PATH[k] = '/' + p
 def src(k): return PATH.get(k, '/' + k)
 
@@ -75,7 +110,7 @@ IND = {r['r']: r['ind'] for r in ROOMS}
 LABEL = {r['r']: {8: 'More industries'}.get(r['r'], r['ind'].replace('Ai', 'AI')) for r in ROOMS}
 
 SERVICES_TEXT = {k: v for k, v in S['serv']}
-SITE_DESC = ("Social Owls is a strategy-first social media and branding agency with offices in Cairo and Dubai, "
+SITE_DESC = ("Social Owls is a strategy-first social media and branding agency with offices in Egypt and the UAE, "
              "working with brands across the UAE & Egypt. 66 brand partners in travel, food & beverage, fashion, tech, "
              "healthcare, industry and more.")
 
@@ -116,7 +151,7 @@ def page(path, title, desc, body, jsonld=None, extra_head=''):
 <main class="wrap">
 {body}
 </main>
-<footer><div class="wrap"><span>Social Owls · Cairo &amp; Dubai · UAE &amp; Egypt · <a href="mailto:letstalk@socialowls.agency">letstalk@socialowls.agency</a></span><span class="serif">Don’t do social. Be social.</span></div></footer>
+<footer><div class="wrap"><span>Social Owls · UAE &amp; Egypt · <a href="mailto:letstalk@socialowls.agency">letstalk@socialowls.agency</a></span><span class="serif">Don’t do social. Be social.</span></div></footer>
 <div class="lb" id="lb" hidden><button type="button" id="lbx">Close</button><img id="lbi" alt=""></div>
 <script src="/site.js" defer></script>
 </body>
@@ -158,18 +193,27 @@ def country_counts():
     for v in seen.values():
         for k in v.split(): cnt[k] += 1
     return cnt
+def logo_fit(path):
+    r = LOGO_R.get(path)
+    if not r: return ''
+    W, H, A = 44, 28, 0.5          # tile content box and share of it each logo's ink should cover
+    w = (A * W * H * r) ** .5; h = w / r
+    if w > W: w = W; h = w / r
+    if h > H: h = H; w = h * r
+    return f' style="width:{w / W * 100:.0f}%;max-width:none;max-height:none;height:auto"'
 def floor_plan():
     cnt = country_counts()
+    order = sorted(FILTERS, key=lambda kn: -cnt[kn[0]])
     chips = '<button class="fchip on" data-f="">All</button>' + ''.join(
-        f'<button class="fchip" data-f="{k}"><b class="dot k-{k if k!="om" else "om"}"></b>{e(n)} <small>{cnt[k]}</small></button>' for k, n in FILTERS if cnt[k])
-    summary = 'Projects by market: ' + ' · '.join(f'{n} {cnt[k]}' for k, n in FILTERS if cnt[k])
+        f'<button class="fchip" data-f="{k}"><b class="dot k-{k if k!="om" else "om"}"></b>{e(n)} <small>{cnt[k]}</small></button>' for k, n in order if cnt[k])
+    summary = 'Projects by market: ' + ' · '.join(f'{n} {cnt[k]}' for k, n in order if cnt[k])
     out = []
     for r in ROOMS:
         flow = []
         for c, its in by_country(room_items(r['r'])):
             seen = set(); tiles = []
             for it in its:
-                if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(f'<i data-c="{CKEYS[c]}"><img src="{src(it["logo"])}" alt="{e(it["name"])} logo" loading="lazy"></i>')
+                if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(f'<i data-c="{CKEYS[c]}"><img src="{src(it["logo"])}" alt="{e(it["name"])} logo" loading="lazy"{logo_fit(src(it["logo"]))}></i>')
             if not tiles: continue
             tag = f'<em class="ctag {CCLS[c]}" data-c="{CKEYS[c]}">{e(CSHORT.get(c, c))}</em>'
             if c == 'Egypt': flow.append(f'<span class="cl eg">{tag}' + ''.join(tiles) + '</span>')
@@ -199,7 +243,7 @@ CASES = [
 ]
 FAQ = [
  ("What does Social Owls do?", "Social Owls is a strategy-first social media and branding agency. We build brand positioning, visual identities and social media content systems that connect content to business results, from strategy and design to community management, paid media and reporting."),
- ("Where is Social Owls based?", "We have two offices, in Cairo, Egypt and Dubai, UAE, and we work with brands across the UAE & Egypt."),
+ ("Where is Social Owls based?", "We have two offices, in Egypt and the UAE, and we work with brands across the UAE & Egypt."),
  ("Which industries do you work with?", "We have worked with 66 brand partners across travel & tourism, food & beverage, retail, fashion & beauty, tech, medical & aesthetics, engineering & building materials, and events & entertainment."),
  ("What makes your approach different?", "Most brands don’t have a content problem, they have a strategy problem. We start with positioning and audience behaviour in each market, then build content that supports awareness, intent and conversion, rather than chasing vanity metrics."),
  ("Do you create brand identities as well as social media?", "Yes. Our branding work covers brand strategy, logo and visual systems, brand guidelines and marketing templates. You can see identities we built on our branding page."),
@@ -225,7 +269,7 @@ def home_page():
   <div class="stats">
     <div class="stat s1"><b>66</b><span>Brand partners</span></div>
     <div class="stat s2"><b>10</b><span>Rooms of work</span></div>
-    <div class="stat s3"><b>CAI · DXB</b><span>Two offices</span></div>
+    <div class="stat s3"><b>EG · UAE</b><span>Two offices</span></div>
     <div class="stat s4"><b>2021</b><span>The nest was built</span></div>
   </div>
 </section>
@@ -288,7 +332,7 @@ if((m=h.match(/^room-(\\d+)$/))&&R[m[1]])location.replace(R[m[1]]);else if((m=h.
     faq = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ]}
     site = {"@context": "https://schema.org", "@type": "WebSite", "name": "Social Owls", "url": BASE + "/", "publisher": {"@id": BASE + "/#org"}}
     return page('/', 'Social Owls | Social Media & Branding Agency in the UAE & Egypt',
-                'Strategy-first social media and branding agency with offices in Cairo and Dubai. 66 brand partners across the UAE & Egypt. See our work by industry.',
+                'Strategy-first social media and branding agency with offices in Egypt and the UAE. 66 brand partners across the UAE & Egypt. See our work by industry.',
                 body, [org, site, faq])
 
 # ---------- 5. room pages ----------
@@ -563,7 +607,7 @@ urls = ''.join(f'<url><loc>{BASE}{p}</loc><lastmod>{TODAY}</lastmod></url>' for 
 open(REPO + '/sitemap.xml', 'w').write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
 open(REPO + '/robots.txt', 'w').write(f'User-agent: *\nAllow: /\n\nSitemap: {BASE}/sitemap.xml\n')
 L = ['# Social Owls', '', f'> {SITE_DESC}', '',
-     'Social Owls (socialowls.agency) is a strategy-first social media and branding agency founded in 2021 by Mary Gaied, with offices in Cairo, Egypt and Dubai, UAE. We build positioning, brand identities and social media content systems that connect content to business growth.', '',
+     'Social Owls (socialowls.agency) is a strategy-first social media and branding agency founded in 2021 by Mary Gaied, with offices in Egypt and the UAE. We build positioning, brand identities and social media content systems that connect content to business growth.', '',
      'Contact: letstalk@socialowls.agency · UAE +971 50 508 9055 · Egypt +20 155 633 1102', '',
      '## Services', *[f'- {n}: {", ".join(it)}' for n, it in S['serv']], '',
      '## Work by industry']
