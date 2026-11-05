@@ -37,10 +37,28 @@ ACC = {1: 'c-mint', 2: 'c-lime', 3: 'c-mid', 4: 'c-dark', 5: 'c-mint', 6: 'c-mid
 BRANDING = [b for b in B.values() if 'Branding' in b['kind']]
 PHOTO = [b for b in B.values() if 'Photography' in b['kind']]
 PH = {'img/slide-103.jpg', 'img/slide-104.jpg'}
+CORDER = ['UAE', 'Saudi Arabia', 'Oman', 'Kuwait', 'Middle East', 'Europe', 'Egypt, UAE & Oman', 'Egypt']
+BYNAME = {b['name']: b for b in B.values()}
+def room_items(r):
+    """Ordered items (brand dicts or logo-only 'others') for a room, biggest names first, grouped by country order."""
+    if r in (9, 10):
+        lst = BRANDING if r == 9 else PHOTO
+        items = sorted(lst, key=lambda b: CORDER.index(b.get('country', 'Egypt')))
+        return [dict(kind='brand', b=b, name=b['name'], logo=b.get('logo'), country=b.get('country', 'Egypt')) for b in items]
+    R = ROOMS[r - 1]; oth = {o['name']: o for o in R.get('others', [])}; out = []
+    for k in R.get('order') or (R['brands'] + list(oth)):
+        if k in B: out.append(dict(kind='brand', b=B[k], name=B[k]['name'], logo=B[k].get('logo'), country=B[k].get('country', 'Egypt')))
+        else:
+            o = oth[k]; out.append(dict(kind='other', b=BYNAME.get(o['name']), name=o['name'], logo=o.get('logo'), country=o.get('country', 'Egypt')))
+    return sorted(out, key=lambda x: CORDER.index(x['country']))
+def by_country(items):
+    groups = []
+    for it in items:
+        if not groups or groups[-1][0] != it['country']: groups.append((it['country'], []))
+        groups[-1][1].append(it)
+    return groups
 def room_brands(r):
-    if r == 9: return BRANDING
-    if r == 10: return PHOTO
-    return [B[s] for s in ROOMS[r - 1]['brands']]
+    return [it['b'] for it in room_items(r) if it['kind'] == 'brand']
 def room_url(r):
     return '/branding/' if r == 9 else f'/rooms/{ROOMSLUG[r]}/'
 def has_social(b): return bool(b['posts'] or b['reels'] or (b['slides'] and not ({'Branding', 'Photography'} & set(b['kind']))))
@@ -129,11 +147,14 @@ def kind_sentence(b):
 def floor_plan():
     out = []
     for r in ROOMS:
-        bs = room_brands(r['r']); seen = set(); lg = []
-        for x in bs + (r.get('others') or []):
-            if x.get('logo') and x['logo'] not in seen: seen.add(x['logo']); lg.append(x)
+        groups = []
+        for c, its in by_country(room_items(r['r'])):
+            seen = set(); tiles = []
+            for it in its:
+                if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(logo_tile(it))
+            if tiles: groups.append(f'<div class="cg"><span class="ctry">{e(c)}</span><div class="lg">{"".join(tiles)}</div></div>')
         out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>
-<div class="lg">{''.join(logo_tile(x) for x in lg)}</div></a>''')
+<div class="cgs">{''.join(groups)}</div></a>''')
     return '<div class="plan">' + ''.join(out) + '</div>'
 
 CASES = [
@@ -256,11 +277,17 @@ def room_page(r):
     R = ROOMS[r - 1]; bs = room_brands(r)
     mode = 'id' if r == 9 else 'ph' if r == 10 else 'b'
     def url(b): return id_url(b) if mode == 'id' else ph_url(b) if mode == 'ph' else main_url(b)
-    cards = ''.join(bcard(b, url(b), services_of(b, mode) + ([f'▶ {len(b["reels"])} reels'] if mode == 'b' and b['reels'] else [])) for b in bs)
+    def card(it):
+        b = it['b']
+        if it['kind'] == 'brand':
+            return bcard(b, url(b), services_of(b, mode) + ([f'▶ {len(b["reels"])} reels'] if mode == 'b' and b['reels'] else []))
+        if b:  # logo-only entry that has its own branding/photo page
+            return bcard(dict(b, name=it['name'], logo=it['logo'] or b.get('logo')), main_url(b), [k for k in b['kind'] if k != 'Reels'][:2])
+        lg = f'<img src="{src(it["logo"])}" alt="{e(it["name"])} logo" loading="lazy">' if it['logo'] else f'<b>{e(it["name"])}</b>'
+        return f'<div class="bcard plain"><div class="lgo">{lg}</div><div class="bt"><strong>{e(it["name"])}</strong></div></div>'
+    cards = ''.join(f'<h2 class="sub ctry-h">{e(c)}</h2><div class="bgrid">{"".join(card(it) for it in its)}</div>' for c, its in by_country(room_items(r)))
     others = ''
-    if R.get('others'):
-        others = '<div class="others"><h2 class="sub">Also in this room</h2><div class="row">' + ''.join(f'<div title="{e(o["name"])}"><img src="{src(o["logo"])}" alt="{e(o["name"])} logo" loading="lazy"></div>' for o in R['others']) + '</div></div>'
-    names = ', '.join(b['name'] for b in bs) + (', ' + ', '.join(o['name'] for o in R.get('others', [])) if R.get('others') else '')
+    names = ', '.join(it['name'] for it in room_items(r))
     if r == 9:
         intro = f'Brand identities built by Social Owls: strategy, logo and visual systems, guidelines, packaging and applications. Projects include {names}.'
         title = 'Branding & Brand Identity Projects | Social Owls'
@@ -274,8 +301,7 @@ def room_page(r):
     body = f'''<a class="back" href="/#work">← All industries</a>
 <div class="roomhead {ACC[r]}"><div class="eyebrow">{e(LABEL[r])}</div><h1>{e(R["name"])}</h1><p>{e(R["line"])}</p></div>
 <p class="sec-lead">{e(intro)}</p>
-<div class="bgrid">{cards}</div>
-{others}
+{cards}
 <div class="pager">{nav}</div>'''
     path = room_url(r)
     ld = [crumbs([('Home', '/'), (R['name'] if r != 9 else 'Branding', path)]),
@@ -318,7 +344,7 @@ def brand_page(b, mode):
     lgo = f'<img src="{src(b["logo"])}" alt="{e(b["name"])} logo">' if b.get('logo') else f'<b style="color:var(--mid);font-size:24px">{e(b["name"])}</b>'
     body = f'''<a class="back" href="{room_url(r)}">← {e(R["name"] if r != 9 else "Branding")}</a>
 <div class="bhead"><div class="lgo">{lgo}</div>
-<div><div class="eyebrow">{e(R["name"])} · {e(ind if r < 9 else R["ind"])}</div><h1>{e(b["name"])}</h1>{f'<p class="tag">{e(b["tagline"])}</p>' if b.get("tagline") else ''}
+<div><div class="eyebrow">{e(R["name"])} · {e(ind if r < 9 else R["ind"])} · {e(b.get("country", "Egypt"))}</div><h1>{e(b["name"])}</h1>{f'<p class="tag">{e(b["tagline"])}</p>' if b.get("tagline") else ''}
 <div class="chips" style="margin-top:14px">{"".join(f"<span class=chip>{e(k)}</span>" for k in services_of(b, mode))}</div>
 {('<div class="xlinks">' + ''.join(f'<a href="{u}">{t} →</a>' for u, t in other) + '</div>') if other else ''}</div></div>
 <p class="sec-lead">{e(about)}</p>
@@ -454,6 +480,13 @@ p,li{font-weight:400}
 }
 """
 open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
+/* country groups */
+.cgs{display:grid;gap:10px;margin-top:6px}
+.cg .ctry{display:block;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-dim);margin-bottom:5px}
+.cg .lg{margin-top:0!important}
+.ctry-h{margin-top:26px}
+.bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
+
 /* horizontal rails for posts and reels */
 .rail{position:relative}
 .track{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:4px 2px 14px;scrollbar-width:thin;columns:auto!important}

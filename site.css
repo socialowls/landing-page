@@ -279,6 +279,13 @@ p,li{font-weight:400}
  #branding .bdesc{display:none}
 }
 
+/* country groups */
+.cgs{display:grid;gap:10px;margin-top:6px}
+.cg .ctry{display:block;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-dim);margin-bottom:5px}
+.cg .lg{margin-top:0!important}
+.ctry-h{margin-top:26px}
+.bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
+
 /* horizontal rails for posts and reels */
 .rail{position:relative}
 .track{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:4px 2px 14px;scrollbar-width:thin;columns:auto!important}
