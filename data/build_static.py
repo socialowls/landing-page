@@ -372,27 +372,22 @@ EXTRA_CSS = '''
 .case-link{display:inline-block;margin-top:22px;font-weight:700;color:var(--lime);text-decoration:none}
 .case-link:hover{text-decoration:underline}
 @media (max-width:760px){
-.case{padding:20px 18px;border-radius:20px}
-.case-top{grid-template-columns:1fr 84px;gap:14px;align-items:start}
-.case-logo{order:0;width:84px;height:60px;padding:8px;border-radius:12px}.case-logo img{max-height:42px}
-.case h3{font-size:26px;margin-top:6px}.case-sub{font-size:18px;margin-top:4px}.case-intro{font-size:14px;margin-top:8px}
-.case-top{display:block}.case-top::after{content:'';display:block;clear:both}.case-logo{float:right;margin:0 0 8px 12px}
-.case-cols{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:18px;margin:18px -18px 0;padding:0 18px 6px;scrollbar-width:none}
+.cases{gap:24px}
+.case{padding:26px 22px 24px;border-radius:22px}
+.case-top{display:block}.case-top::after{content:'';display:block;clear:both}
+.case-logo{order:0;float:right;width:76px;height:56px;padding:8px;border-radius:12px;margin:0 0 10px 16px}.case-logo img{max-height:38px}
+.case .eyebrow{font-size:11px;letter-spacing:.18em;line-height:1.5}
+.case h3{font-size:25px;line-height:1.15;margin-top:10px}
+.case-sub{font-size:18px;line-height:1.3;margin-top:10px}
+.case-intro{font-size:15px;font-weight:400;line-height:1.6;margin-top:14px;color:#ddd3ee}
+.case-cols{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:22px;margin:24px -22px 0;padding:0 22px 4px;scrollbar-width:none}
 .case-cols::-webkit-scrollbar{display:none}
-.cc{flex:0 0 78%;scroll-snap-align:start;min-height:0;padding:16px 18px}.cc p{font-size:15px}
+.cc{flex:0 0 80%;scroll-snap-align:start;min-height:0;padding:20px 20px 22px}
+.cc h4{margin-bottom:10px}
+.cc p{font-size:15px;font-weight:500;line-height:1.6}
 .cc:not(:last-child)::after{display:none}
-.case-link{margin-top:14px}
-.swipe-hint{display:block;font-size:12px;color:#cbbfe0;margin-top:6px}}
-.swipe-hint{display:none}
-.faq{display:grid;gap:10px;max-width:860px}
-.faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-.faq summary{font-weight:800;cursor:pointer;color:var(--ink)}
-.faq p{margin:10px 0 0;color:var(--fg-dim)}
-.copy a{text-decoration:none;overflow-wrap:anywhere}
-.tag{margin:8px 0 0}
-footer a{color:inherit}
-@media (max-width:900px){.about-grid{grid-template-columns:1fr}}
-@media (max-width:600px){.about-grid p{font-size:15px;padding:16px}.sec-lead{font-size:15px}.bcard .bdesc{font-size:13px}}
+.swipe-hint{display:block;font-size:12px;color:#b9abd3;margin-top:10px}
+.case-link{margin-top:18px}}
 '''
 open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS)
 open(REPO + '/site.js', 'w').write('''const lb=document.getElementById('lb'),lbi=document.getElementById('lbi');
