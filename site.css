@@ -278,3 +278,15 @@ p,li{font-weight:400}
  footer .wrap{font-size:13px}
  #branding .bdesc{display:none}
 }
+
+/* horizontal rails for posts and reels */
+.rail{position:relative}
+.track{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:4px 2px 14px;scrollbar-width:thin;columns:auto!important}
+.track>*{flex:none;scroll-snap-align:start;margin:0!important}
+.track.posts .shot{height:380px;width:auto;background:var(--card)}
+.track.posts .shot img{height:100%;width:auto;max-width:none;object-fit:contain}
+.track.reels .reel{width:220px}
+.rail-btn{position:absolute;top:calc(50% - 30px);width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.95);color:var(--ink);font-size:26px;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(42,22,69,.15);display:grid;place-items:center;z-index:2}
+.rail-btn.prev{left:-12px}.rail-btn.next{right:-12px}
+.rail-btn[hidden]{display:none}
+@media (max-width:760px){.track{gap:10px;margin-inline:-16px;padding-inline:16px;scroll-padding-left:16px}.track.posts .shot{height:300px}.track.reels .reel{width:170px}.rail-btn{display:none}}

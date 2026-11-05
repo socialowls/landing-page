@@ -307,9 +307,9 @@ def brand_page(b, mode):
     about = f'{b["name"]} is a {ind.lower().replace("ai","AI")} client of Social Owls. Our work for {b["name"]} on this page: {what}.' + (f' This page shows {", ".join(counts)}.' if counts else '')
     parts = []
     if mode == 'b' and b['reels']:
-        parts.append('<h2 class="sub">Reels · tap to watch</h2><div class="reels">' + ''.join(f'<a class="reel" href="{e(x["url"])}" target="_blank" rel="noopener"><div class="th"><img src="{src(x["thumb"])}" alt="{e(b["name"])} reel: {e(x["title"])}" loading="lazy"><div class="pl"><i></i></div></div><span>{e(x["title"])}</span></a>' for x in b['reels']) + '</div>')
+        parts.append('<h2 class="sub">Reels · tap to watch</h2><div class="rail"><div class="track reels">' + ''.join(f'<a class="reel" href="{e(x["url"])}" target="_blank" rel="noopener"><div class="th"><img src="{src(x["thumb"])}" alt="{e(b["name"])} reel: {e(x["title"])}" loading="lazy"><div class="pl"><i></i></div></div><span>{e(x["title"])}</span></a>' for x in b['reels']) + '</div><button class="rail-btn prev" type="button" aria-label="Scroll left">‹</button><button class="rail-btn next" type="button" aria-label="Scroll right">›</button></div>')
     if mode == 'b' and b['posts']:
-        parts.append('<h2 class="sub">Social media posts</h2><div class="posts">' + ''.join(f'<button class="shot" type="button" data-z="{src(p)}"><img src="{src(p)}" alt="{e(b["name"])} social media post {n + 1} designed by Social Owls" loading="lazy"></button>' for n, p in enumerate(b['posts'])) + '</div>')
+        parts.append('<h2 class="sub">Social media posts</h2><div class="rail"><div class="track posts">' + ''.join(f'<button class="shot" type="button" data-z="{src(p)}"><img src="{src(p)}" alt="{e(b["name"])} social media post {n + 1} designed by Social Owls" loading="lazy"></button>' for n, p in enumerate(b['posts'])) + '</div><button class="rail-btn prev" type="button" aria-label="Scroll left">‹</button><button class="rail-btn next" type="button" aria-label="Scroll right">›</button></div>')
     if show_slides and slides:
         h = 'Identity &amp; applications' if mode == 'id' else 'Photography' if mode == 'ph' else 'Behind the work'
         parts.append(f'<h2 class="sub">{h}</h2><div class="slides">' + ''.join(f'<figure><button class="shot" type="button" data-z="{src(s["img"])}"><img src="{src(s["img"])}" alt="{e(b["name"])} {e(s.get("cap") or what)}" loading="lazy"></button>{f"<figcaption>{e(s["cap"])}</figcaption>" if s.get("cap") else ""}</figure>' for s in slides) + '</div>')
@@ -453,12 +453,28 @@ p,li{font-weight:400}
  #branding .bdesc{display:none}
 }
 """
-open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS)
+open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
+/* horizontal rails for posts and reels */
+.rail{position:relative}
+.track{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:4px 2px 14px;scrollbar-width:thin;columns:auto!important}
+.track>*{flex:none;scroll-snap-align:start;margin:0!important}
+.track.posts .shot{height:380px;width:auto;background:var(--card)}
+.track.posts .shot img{height:100%;width:auto;max-width:none;object-fit:contain}
+.track.reels .reel{width:220px}
+.rail-btn{position:absolute;top:calc(50% - 30px);width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.95);color:var(--ink);font-size:26px;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(42,22,69,.15);display:grid;place-items:center;z-index:2}
+.rail-btn.prev{left:-12px}.rail-btn.next{right:-12px}
+.rail-btn[hidden]{display:none}
+@media (max-width:760px){.track{gap:10px;margin-inline:-16px;padding-inline:16px;scroll-padding-left:16px}.track.posts .shot{height:300px}.track.reels .reel{width:170px}.rail-btn{display:none}}
+''')
 open(REPO + '/site.js', 'w').write('''const lb=document.getElementById('lb'),lbi=document.getElementById('lbi');
 document.addEventListener('click',e=>{const z=e.target.closest('[data-z]');if(z){lbi.src=z.dataset.z;lb.hidden=false;return}
 const c=e.target.closest('[data-copy]');if(c){navigator.clipboard&&navigator.clipboard.writeText(c.dataset.copy).then(()=>{c.textContent='Copied';setTimeout(()=>c.textContent='Copy',1500)});return}
 if(e.target===lb||e.target.id==='lbx'){lb.hidden=true;lbi.src=''}});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!lb.hidden){lb.hidden=true;lbi.src=''}});
+document.querySelectorAll('.rail').forEach(r=>{const t=r.querySelector('.track'),p=r.querySelector('.prev'),n=r.querySelector('.next');
+const u=()=>{p.hidden=t.scrollLeft<8;n.hidden=t.scrollLeft+t.clientWidth>=t.scrollWidth-8};
+p.onclick=()=>t.scrollBy({left:-t.clientWidth*.8});n.onclick=()=>t.scrollBy({left:t.clientWidth*.8});
+t.addEventListener('scroll',u,{passive:true});addEventListener('resize',u);t.querySelectorAll('img').forEach(i=>i.addEventListener('load',u));u()});
 ''')
 # sitemap / robots / llms.txt
 urls = ''.join(f'<url><loc>{BASE}{p}</loc><lastmod>{TODAY}</lastmod></url>' for p in written)
