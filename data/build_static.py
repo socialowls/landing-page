@@ -164,9 +164,8 @@ FAQ = [
 def case_card(c):
     b = B[c['slug']]
     cols = ''.join(f'<div class="cc"><h4>{e(h)}</h4><p>{e(t)}</p></div>' for h, t in c['cols'])
-    return f'''<article class="case"><div class="case-top"><div><div class="eyebrow">{e(c["eyebrow"])}</div><h3>{e(c["title"])}</h3><p class="case-sub">{e(c["sub"])}</p><p class="case-intro">{e(c["intro"])}</p></div>
-<a class="case-logo" href="{main_url(b)}"><img src="{src(b["logo"])}" alt="{e(b["name"])} logo" loading="lazy"></a></div>
-<div class="case-cols">{cols}</div><a class="case-link" href="{main_url(b)}">See the {e(c.get("label") or b["name"])} work →</a></article>'''
+    return f'''<article class="case"><div class="case-top"><a class="case-logo" href="{main_url(b)}"><img src="{src(b["logo"])}" alt="{e(b["name"])} logo" loading="lazy"></a><div><div class="eyebrow">{e(c["eyebrow"])}</div><h3>{e(c["title"])}</h3><p class="case-sub">{e(c["sub"])}</p><p class="case-intro">{e(c["intro"])}</p></div></div>
+<div class="case-cols">{cols}</div><span class="swipe-hint">Swipe for more →</span><a class="case-link" href="{main_url(b)}">See the {e(c.get("label") or b["name"])} work →</a></article>'''
 
 def home_page():
     nb = len(B)
@@ -355,13 +354,14 @@ EXTRA_CSS = '''
 .bcard .bdesc{font-size:14px;color:var(--fg-dim);line-height:1.35}
 .how{display:block;margin:22px 0 0;font-size:15px;font-weight:600;color:var(--fg-dim)}.how span{color:var(--mid);margin:0 4px;background:none;border:0;padding:0}
 .cases{grid-template-columns:1fr;gap:18px}
+.swipe-hint{display:none}
 .case{background:var(--ink);color:#fff;border-radius:24px;padding:36px 40px;position:relative;overflow:hidden}
 .case .eyebrow{color:var(--lime)}
 .case-top{display:grid;grid-template-columns:1fr 240px;gap:28px;align-items:start}
 .case h3{font-size:clamp(28px,4vw,52px);font-weight:900;margin-top:10px;color:#fff;letter-spacing:-.01em}
 .case-sub{font-family:var(--serif);font-style:italic;font-weight:700;color:var(--lime);font-size:clamp(20px,2.6vw,32px);margin:8px 0 0}
 .case-intro{color:#e8e0f4;margin:14px 0 0;max-width:60ch;font-size:17px}
-.case-logo{display:grid;place-items:center;height:150px;background:#fff;border-radius:18px;padding:20px}
+.case-logo{order:2;display:grid;place-items:center;height:150px;background:#fff;border-radius:18px;padding:20px}
 .case-logo img{max-width:100%;max-height:100px;object-fit:contain}
 .case-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:28px}
 .cc{border-radius:16px;padding:20px 22px;color:var(--ink);position:relative;min-height:150px}
@@ -371,7 +371,19 @@ EXTRA_CSS = '''
 .cc p{margin:0;font-size:16px;font-weight:600;line-height:1.45}
 .case-link{display:inline-block;margin-top:22px;font-weight:700;color:var(--lime);text-decoration:none}
 .case-link:hover{text-decoration:underline}
-@media (max-width:760px){.case{padding:24px 20px}.case-top{grid-template-columns:1fr}.case-logo{order:-1;width:150px;height:96px;padding:14px}.case-logo img{max-height:64px}.case-cols{grid-template-columns:1fr;gap:12px}.cc{min-height:0}.cc:not(:last-child)::after{display:none}.case-intro{font-size:15px}}
+@media (max-width:760px){
+.case{padding:20px 18px;border-radius:20px}
+.case-top{grid-template-columns:1fr 84px;gap:14px;align-items:start}
+.case-logo{order:0;width:84px;height:60px;padding:8px;border-radius:12px}.case-logo img{max-height:42px}
+.case h3{font-size:26px;margin-top:6px}.case-sub{font-size:18px;margin-top:4px}.case-intro{font-size:14px;margin-top:8px}
+.case-top{display:block}.case-top::after{content:'';display:block;clear:both}.case-logo{float:right;margin:0 0 8px 12px}
+.case-cols{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:18px;margin:18px -18px 0;padding:0 18px 6px;scrollbar-width:none}
+.case-cols::-webkit-scrollbar{display:none}
+.cc{flex:0 0 78%;scroll-snap-align:start;min-height:0;padding:16px 18px}.cc p{font-size:15px}
+.cc:not(:last-child)::after{display:none}
+.case-link{margin-top:14px}
+.swipe-hint{display:block;font-size:12px;color:#cbbfe0;margin-top:6px}}
+.swipe-hint{display:none}
 .faq{display:grid;gap:10px;max-width:860px}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
 .faq summary{font-weight:800;cursor:pointer;color:var(--ink)}
