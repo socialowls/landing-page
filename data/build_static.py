@@ -154,7 +154,7 @@ def floor_plan():
             seen = set(); tiles = []
             for it in its:
                 if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(logo_tile(it, CCLS[c]))
-            if tiles: flow.append(f'<em class="ctag {CCLS[c]}">{e(CSHORT.get(c, c))}</em>' + ''.join(tiles))
+            if tiles: flow.append(f'<span class="cl {CCLS[c]}"><em class="ctag {CCLS[c]}">{e(CSHORT.get(c, c))}</em>' + ''.join(tiles) + '</span>')
         out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>
 <div class="lg">{''.join(flow)}</div></a>''')
     return '<div class="plan">' + ''.join(out) + '</div>'
@@ -495,6 +495,11 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 .room .lg i.k-uae{border-color:#bcda7b}.room .lg i.k-ksa{border-color:#8fcfcd}.room .lg i.k-om{border-color:#c9bbdc}.room .lg i.k-kw{border-color:#765da8}
 .room .lg i.k-eg{border-color:rgba(42,22,69,.35)}.room .lg i.k-me{border-color:#f0c38f}.room .lg i.k-eu{border-color:#2a1645}.room .lg i.k-multi{border-color:#a7b9e0}
 .room .lg i{border-width:1.5px}
+.room .lg{gap:8px}
+.room .cl{display:inline-flex;flex-wrap:wrap;align-items:center;gap:5px;padding:5px;border-radius:12px;max-width:100%}
+.room .cl .ctag{margin:0 2px}
+.cl.k-uae{background:#eef6dd}.cl.k-ksa{background:#e3f4f3}.cl.k-om{background:#efe9f6}.cl.k-kw{background:#e6e0f2}
+.cl.k-eg{background:#ece8f2}.cl.k-me{background:#fbeedd}.cl.k-eu{background:#f1eff4}.cl.k-multi{background:#eef1f8}
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
 
 /* horizontal rails for posts and reels */

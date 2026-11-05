@@ -289,6 +289,11 @@ p,li{font-weight:400}
 .room .lg i.k-uae{border-color:#bcda7b}.room .lg i.k-ksa{border-color:#8fcfcd}.room .lg i.k-om{border-color:#c9bbdc}.room .lg i.k-kw{border-color:#765da8}
 .room .lg i.k-eg{border-color:rgba(42,22,69,.35)}.room .lg i.k-me{border-color:#f0c38f}.room .lg i.k-eu{border-color:#2a1645}.room .lg i.k-multi{border-color:#a7b9e0}
 .room .lg i{border-width:1.5px}
+.room .lg{gap:8px}
+.room .cl{display:inline-flex;flex-wrap:wrap;align-items:center;gap:5px;padding:5px;border-radius:12px;max-width:100%}
+.room .cl .ctag{margin:0 2px}
+.cl.k-uae{background:#eef6dd}.cl.k-ksa{background:#e3f4f3}.cl.k-om{background:#efe9f6}.cl.k-kw{background:#e6e0f2}
+.cl.k-eg{background:#ece8f2}.cl.k-me{background:#fbeedd}.cl.k-eu{background:#f1eff4}.cl.k-multi{background:#eef1f8}
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
 
 /* horizontal rails for posts and reels */
