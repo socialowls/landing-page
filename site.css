@@ -240,3 +240,41 @@ section[id]{scroll-margin-top:84px}
 .cc:not(:last-child)::after{display:none}
 
 .case-link{margin-top:18px}}
+
+/* spacing + colour pass */
+body{line-height:1.6;overflow-x:hidden}
+p,li{font-weight:400}
+.lead,.sec-lead,.case-intro,.host p,.faq p,.pillars li{line-height:1.65}
+.eyebrow{display:inline-flex;align-items:center;gap:8px}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--acc-lime);flex:none}
+.case .eyebrow::before{background:var(--lime)}
+.pillars li:nth-child(1)::before{color:var(--acc-lime)}.pillars li:nth-child(2)::before{color:var(--acc-mint)}.pillars li:nth-child(3)::before{color:var(--acc-lav)}
+.s2 b{color:var(--acc-mint)}.s4 b{color:var(--acc-lime)}
+.serv div{border-top:3px solid var(--acc-lav)}
+.serv div:nth-child(3n+1){border-top-color:var(--acc-lime)}.serv div:nth-child(3n+2){border-top-color:var(--acc-mint)}
+#services,#faq{position:relative;isolation:isolate}
+#services::before,#faq::before{content:"";position:absolute;top:0;bottom:0;left:calc(50% - 50vw);right:calc(50% - 50vw);z-index:-1}
+#services::before{background:#f3f8ec}#faq::before{background:#eef7f6}
+.faq summary::marker{color:var(--acc-mint)}
+.host{border-left:5px solid var(--acc-lime)}
+.contact{background:linear-gradient(135deg,#efe7f8,#e7f3f2)}
+@media (max-width:760px){
+ section{padding-block:44px}
+ .sec-head{margin-bottom:16px}
+ .sec-head h2{font-size:32px;line-height:1.1}
+ .hero{padding-block:32px 12px;gap:28px}
+ .hero h1{font-size:46px;line-height:1.02}
+ .lead{font-size:16px;margin-top:18px}
+ .how{font-size:14px;margin-top:16px}
+ .stats{gap:10px}
+ .sec-lead{font-size:15px;margin-top:6px}
+ .pillars{gap:22px}
+ .host{padding:22px 20px;gap:14px;border-left-width:4px}.host h2{font-size:30px}.host .serif{font-size:22px}.host p{font-size:15px}
+ .serv{gap:12px}
+ .plan{gap:14px}.room{padding:18px 18px 16px}
+ .bgrid{gap:12px}
+ .faq details{padding:14px 16px}.faq summary{font-size:15px;line-height:1.4}
+ .contact{padding:24px 20px;gap:18px}.contact h2{font-size:36px}
+ footer .wrap{font-size:13px}
+ #branding .bdesc{display:none}
+}
