@@ -206,7 +206,6 @@ def floor_plan():
     order = sorted(FILTERS, key=lambda kn: -cnt[kn[0]])
     chips = '<button class="fchip on" data-f="">All</button>' + ''.join(
         f'<button class="fchip" data-f="{k}"><b class="dot k-{k if k!="om" else "om"}"></b>{e(n)} <small>{cnt[k]}</small></button>' for k, n in order if cnt[k])
-    summary = 'Projects by market: ' + ' · '.join(f'{n} {cnt[k]}' for k, n in order if cnt[k])
     out = []
     for r in ROOMS:
         flow = []
@@ -221,7 +220,6 @@ def floor_plan():
         out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>
 <div class="lg">{''.join(flow)}</div></a>''')
     return (f'<div class="cfilter" role="group" aria-label="Filter work by country">{chips}</div>'
-            f'<p class="csum">{e(summary)}.</p>'
             '<div class="plan">' + ''.join(out) + '</div>')
 
 CASES = [
@@ -566,12 +564,15 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 .room .cl{background:#f4f1f8}.room .cl.eg{background:none;padding:5px 0}
 .room .lg i{border-color:#e6e0ef!important;transition:opacity .25s,transform .25s}
 .cfilter{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
-.fchip{font:600 13px/1 'Google Sans Flex',sans-serif;color:#2a1645;background:#fff;border:1.5px solid #e2dcec;border-radius:999px;padding:9px 14px;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
-.fchip small{font-size:11px;color:#765da8;font-weight:600}
+.fchip{font-family:var(--sans);font-size:11px;line-height:1;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a1645;background:#fff;border:1.5px solid #e2dcec;border-radius:999px;padding:10px 15px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .2s,background .2s}
+.fchip:hover{border-color:#765da8}
+.fchip small{font-size:11px;letter-spacing:0;color:#765da8;font-weight:800}
+.room .ctag[data-c]{cursor:pointer;transition:transform .15s}.room .ctag[data-c]:hover{transform:scale(1.08)}
+.stat.s3{container-type:inline-size}.stat.s3 b{white-space:nowrap;font-size:min(44px,20cqw)}
 .fchip .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .dot.k-uae{background:#bcda7b}.dot.k-ksa{background:#7fcfcb}.dot.k-om{background:#c9bbdc}.dot.k-kw{background:#765da8}.dot.k-me{background:#f0c48f}.dot.k-eu{background:#fff;box-shadow:inset 0 0 0 1.5px #2a1645}.dot.k-eg{background:#2a1645}
 .fchip.on{background:#2a1645;color:#fff;border-color:#2a1645}.fchip.on small{color:#c9bbdc}
-.csum{font-size:13px;color:#6b5d82;margin:0 0 22px}
+.cfilter{margin-bottom:22px}
 .plan.filtering .lg i:not(.hit),.plan.filtering .ctag:not(.hit){opacity:.14}
 .plan.filtering .cl:not(.hit){background:transparent}
 .plan.filtering .lg i.hit{transform:scale(1.04)}
@@ -592,6 +593,7 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 @media (max-width:760px){.track{gap:10px;margin-inline:-16px;padding-inline:16px;scroll-padding-left:16px}.track.posts .shot{height:300px}.track.reels .reel{width:170px}.rail-btn{display:none}}
 ''')
 open(REPO + '/site.js', 'w').write('''const pl=document.querySelector('.plan');document.querySelectorAll('.fchip').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.fchip').forEach(x=>x.classList.toggle('on',x===b));const f=b.dataset.f;pl.classList.toggle('filtering',!!f);pl.querySelectorAll('.hit').forEach(x=>x.classList.remove('hit'));if(!f)return;pl.querySelectorAll('[data-c]').forEach(x=>{if(x.dataset.c.split(' ').includes(f)){x.classList.add('hit');const cl=x.closest('.cl');cl&&cl.classList.add('hit');x.closest('.room').classList.add('hit')}})}));
+pl&&pl.addEventListener('click',ev=>{const t=ev.target.closest('.ctag[data-c]');if(!t)return;ev.preventDefault();ev.stopPropagation();const k=t.dataset.c.split(' ');const cur=(document.querySelector('.fchip.on')||{}).dataset;const f=k.length>1?'':(cur&&cur.f===k[0]?'':k[0]);const b=document.querySelector('.fchip[data-f="'+f+'"]');b&&b.click()},true);
 const lb=document.getElementById('lb'),lbi=document.getElementById('lbi');
 document.addEventListener('click',e=>{const z=e.target.closest('[data-z]');if(z){lbi.src=z.dataset.z;lb.hidden=false;return}
 const c=e.target.closest('[data-copy]');if(c){navigator.clipboard&&navigator.clipboard.writeText(c.dataset.copy).then(()=>{c.textContent='Copied';setTimeout(()=>c.textContent='Copy',1500)});return}
