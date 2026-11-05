@@ -279,11 +279,10 @@ p,li{font-weight:400}
  #branding .bdesc{display:none}
 }
 
-/* country groups */
-.cgs{display:grid;gap:10px;margin-top:6px}
-.cg .ctry{display:block;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-dim);margin-bottom:5px}
-.cg .lg{margin-top:0!important}
-.ctry-h{margin-top:26px}
+/* country tags */
+.room .ctag{font-style:normal;align-self:center;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);background:var(--fog);border-radius:999px;padding:4px 7px;white-space:nowrap}
+.bcard .lgo{position:relative}
+.bcard .ctag{position:absolute;top:10px;left:10px;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);background:var(--fog);border-radius:999px;padding:3px 8px}
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
 
 /* horizontal rails for posts and reels */

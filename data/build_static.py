@@ -37,6 +37,7 @@ ACC = {1: 'c-mint', 2: 'c-lime', 3: 'c-mid', 4: 'c-dark', 5: 'c-mint', 6: 'c-mid
 BRANDING = [b for b in B.values() if 'Branding' in b['kind']]
 PHOTO = [b for b in B.values() if 'Photography' in b['kind']]
 PH = {'img/slide-103.jpg', 'img/slide-104.jpg'}
+CSHORT = {'Saudi Arabia': 'KSA', 'Egypt, UAE & Oman': 'EG · UAE · OM', 'Middle East': 'ME'}
 CORDER = ['UAE', 'Saudi Arabia', 'Oman', 'Kuwait', 'Middle East', 'Europe', 'Egypt, UAE & Oman', 'Egypt']
 BYNAME = {b['name']: b for b in B.values()}
 def room_items(r):
@@ -147,14 +148,14 @@ def kind_sentence(b):
 def floor_plan():
     out = []
     for r in ROOMS:
-        groups = []
+        flow = []
         for c, its in by_country(room_items(r['r'])):
             seen = set(); tiles = []
             for it in its:
                 if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(logo_tile(it))
-            if tiles: groups.append(f'<div class="cg"><span class="ctry">{e(c)}</span><div class="lg">{"".join(tiles)}</div></div>')
+            if tiles: flow.append(f'<em class="ctag">{e(CSHORT.get(c, c))}</em>' + ''.join(tiles))
         out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>
-<div class="cgs">{''.join(groups)}</div></a>''')
+<div class="lg">{''.join(flow)}</div></a>''')
     return '<div class="plan">' + ''.join(out) + '</div>'
 
 CASES = [
@@ -285,7 +286,10 @@ def room_page(r):
             return bcard(dict(b, name=it['name'], logo=it['logo'] or b.get('logo')), main_url(b), [k for k in b['kind'] if k != 'Reels'][:2])
         lg = f'<img src="{src(it["logo"])}" alt="{e(it["name"])} logo" loading="lazy">' if it['logo'] else f'<b>{e(it["name"])}</b>'
         return f'<div class="bcard plain"><div class="lgo">{lg}</div><div class="bt"><strong>{e(it["name"])}</strong></div></div>'
-    cards = ''.join(f'<h2 class="sub ctry-h">{e(c)}</h2><div class="bgrid">{"".join(card(it) for it in its)}</div>' for c, its in by_country(room_items(r)))
+    def tagged(it):
+        h = card(it)
+        return h.replace('<div class="lgo">', f'<div class="lgo"><em class="ctag">{e(it["country"])}</em>', 1)
+    cards = '<div class="bgrid">' + ''.join(tagged(it) for it in room_items(r)) + '</div>'
     others = ''
     names = ', '.join(it['name'] for it in room_items(r))
     if r == 9:
@@ -480,11 +484,10 @@ p,li{font-weight:400}
 }
 """
 open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
-/* country groups */
-.cgs{display:grid;gap:10px;margin-top:6px}
-.cg .ctry{display:block;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-dim);margin-bottom:5px}
-.cg .lg{margin-top:0!important}
-.ctry-h{margin-top:26px}
+/* country tags */
+.room .ctag{font-style:normal;align-self:center;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);background:var(--fog);border-radius:999px;padding:4px 7px;white-space:nowrap}
+.bcard .lgo{position:relative}
+.bcard .ctag{position:absolute;top:10px;left:10px;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);background:var(--fog);border-radius:999px;padding:3px 8px}
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
 
 /* horizontal rails for posts and reels */
