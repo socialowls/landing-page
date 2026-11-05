@@ -37,6 +37,7 @@ ACC = {1: 'c-mint', 2: 'c-lime', 3: 'c-mid', 4: 'c-dark', 5: 'c-mint', 6: 'c-mid
 BRANDING = [b for b in B.values() if 'Branding' in b['kind']]
 PHOTO = [b for b in B.values() if 'Photography' in b['kind']]
 PH = {'img/slide-103.jpg', 'img/slide-104.jpg'}
+CCLS = {'UAE': 'k-uae', 'Saudi Arabia': 'k-ksa', 'Oman': 'k-om', 'Kuwait': 'k-kw', 'Middle East': 'k-me', 'Europe': 'k-eu', 'Egypt, UAE & Oman': 'k-multi', 'Egypt': 'k-eg'}
 CSHORT = {'Saudi Arabia': 'KSA', 'Egypt, UAE & Oman': 'EG · UAE · OM', 'Middle East': 'ME'}
 CORDER = ['UAE', 'Saudi Arabia', 'Oman', 'Kuwait', 'Middle East', 'Europe', 'Egypt, UAE & Oman', 'Egypt']
 BYNAME = {b['name']: b for b in B.values()}
@@ -127,7 +128,7 @@ def crumbs(items):
             "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": n, "item": BASE + u} for i, (n, u) in enumerate(items)]}
 
 def logo_tile(b_or_o, cls=''):
-    return f'<i><img src="{src(b_or_o["logo"])}" alt="{e(b_or_o["name"])} logo" loading="lazy"></i>'
+    return f'<i{f" class={cls}" if cls else ""}><img src="{src(b_or_o["logo"])}" alt="{e(b_or_o["name"])} logo" loading="lazy"></i>'
 
 def services_of(b, mode):
     if mode == 'id': return ['Branding']
@@ -152,8 +153,8 @@ def floor_plan():
         for c, its in by_country(room_items(r['r'])):
             seen = set(); tiles = []
             for it in its:
-                if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(logo_tile(it))
-            if tiles: flow.append(f'<em class="ctag">{e(CSHORT.get(c, c))}</em>' + ''.join(tiles))
+                if it['logo'] and it['logo'] not in seen: seen.add(it['logo']); tiles.append(logo_tile(it, CCLS[c]))
+            if tiles: flow.append(f'<em class="ctag {CCLS[c]}">{e(CSHORT.get(c, c))}</em>' + ''.join(tiles))
         out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>
 <div class="lg">{''.join(flow)}</div></a>''')
     return '<div class="plan">' + ''.join(out) + '</div>'
@@ -288,7 +289,7 @@ def room_page(r):
         return f'<div class="bcard plain"><div class="lgo">{lg}</div><div class="bt"><strong>{e(it["name"])}</strong></div></div>'
     def tagged(it):
         h = card(it)
-        return h.replace('<div class="lgo">', f'<div class="lgo"><em class="ctag">{e(it["country"])}</em>', 1)
+        return h.replace('<div class="lgo">', f'<div class="lgo"><em class="ctag {CCLS[it["country"]]}">{e(it["country"])}</em>', 1)
     cards = '<div class="bgrid">' + ''.join(tagged(it) for it in room_items(r)) + '</div>'
     others = ''
     names = ', '.join(it['name'] for it in room_items(r))
@@ -488,6 +489,12 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 .room .ctag{font-style:normal;align-self:center;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);background:var(--fog);border-radius:999px;padding:4px 7px;white-space:nowrap}
 .bcard .lgo{position:relative}
 .bcard .ctag{position:absolute;top:10px;left:10px;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);background:var(--fog);border-radius:999px;padding:3px 8px}
+.ctag.k-uae{background:#bcda7b;color:#2a1645}.ctag.k-ksa{background:#bce4e3;color:#2a1645}.ctag.k-om{background:#c9bbdc;color:#2a1645}
+.ctag.k-kw{background:#765da8;color:#fff}.ctag.k-eg{background:#2a1645;color:#fff}.ctag.k-me{background:#f6d9b8;color:#2a1645}
+.ctag.k-eu{background:#fff;color:#2a1645;box-shadow:inset 0 0 0 1.5px #2a1645}.ctag.k-multi{background:linear-gradient(90deg,#2a1645 0,#2a1645 33%,#bcda7b 33%,#bcda7b 66%,#c9bbdc 66%);color:#fff;text-shadow:0 0 3px #2a1645}
+.room .lg i.k-uae{border-color:#bcda7b}.room .lg i.k-ksa{border-color:#8fcfcd}.room .lg i.k-om{border-color:#c9bbdc}.room .lg i.k-kw{border-color:#765da8}
+.room .lg i.k-eg{border-color:rgba(42,22,69,.35)}.room .lg i.k-me{border-color:#f0c38f}.room .lg i.k-eu{border-color:#2a1645}.room .lg i.k-multi{border-color:#a7b9e0}
+.room .lg i{border-width:1.5px}
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
 
 /* horizontal rails for posts and reels */

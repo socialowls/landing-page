@@ -283,6 +283,12 @@ p,li{font-weight:400}
 .room .ctag{font-style:normal;align-self:center;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);background:var(--fog);border-radius:999px;padding:4px 7px;white-space:nowrap}
 .bcard .lgo{position:relative}
 .bcard .ctag{position:absolute;top:10px;left:10px;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);background:var(--fog);border-radius:999px;padding:3px 8px}
+.ctag.k-uae{background:#bcda7b;color:#2a1645}.ctag.k-ksa{background:#bce4e3;color:#2a1645}.ctag.k-om{background:#c9bbdc;color:#2a1645}
+.ctag.k-kw{background:#765da8;color:#fff}.ctag.k-eg{background:#2a1645;color:#fff}.ctag.k-me{background:#f6d9b8;color:#2a1645}
+.ctag.k-eu{background:#fff;color:#2a1645;box-shadow:inset 0 0 0 1.5px #2a1645}.ctag.k-multi{background:linear-gradient(90deg,#2a1645 0,#2a1645 33%,#bcda7b 33%,#bcda7b 66%,#c9bbdc 66%);color:#fff;text-shadow:0 0 3px #2a1645}
+.room .lg i.k-uae{border-color:#bcda7b}.room .lg i.k-ksa{border-color:#8fcfcd}.room .lg i.k-om{border-color:#c9bbdc}.room .lg i.k-kw{border-color:#765da8}
+.room .lg i.k-eg{border-color:rgba(42,22,69,.35)}.room .lg i.k-me{border-color:#f0c38f}.room .lg i.k-eu{border-color:#2a1645}.room .lg i.k-multi{border-color:#a7b9e0}
+.room .lg i{border-width:1.5px}
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
 
 /* horizontal rails for posts and reels */
