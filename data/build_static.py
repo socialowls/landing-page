@@ -218,12 +218,11 @@ def floor_plan():
         for c, items in groups:
             tiles = []
             for it in items:
-                x = ' class="x"' if total > 5 and n >= 4 else ''; n += 1
-                tiles.append(f'<i data-c="{CKEYS[c]}"{x}><img src="{src(it["logo"])}" alt="{e(it["name"])} logo" loading="lazy"{logo_fit(src(it["logo"]))}></i>')
+                tiles.append(f'<i data-c="{CKEYS[c]}"><span class="li"><img src="{src(it["logo"])}" alt="{e(it["name"])} logo" loading="lazy"{logo_fit(src(it["logo"]))}></span><s class="ct {CCLS[c]}">{e(CSHORT.get(c, c))}</s></i>')
             tag = f'<em class="ctag {CCLS[c]}" data-c="{CKEYS[c]}">{e(CSHORT.get(c, c))}</em>'
             flow.append(f'<span class="cl{" eg" if c == "Egypt" else ""}">{tag}<span class="lt">' + ''.join(tiles) + '</span></span>')
-        more = f'<b class="more">+{total - 4}</b>' if total > 5 else ''
-        rsum = '<span class="rsum">' + ''.join(f'<span><b class="dot {CCLS[c]}"></b>{e(CSHORT.get(c, c))} {len(i)}</span>' for c, i in groups) + '</span>'
+        more = ''
+        rsum = ''
         out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>{rsum}
 <div class="lg">{''.join(flow)}{more}</div></a>''')
     return (f'<div class="cfilter" role="group" aria-label="Filter work by country">{chips}</div>'
@@ -585,28 +584,23 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 .plan.filtering .lg i.hit{transform:scale(1.04)}
 .plan.filtering .room:not(.hit){opacity:.45}
 .room .lt{display:contents}
-.room .rsum,.room .more{display:none}
+.room .rsum,.room .more,.room .ct{display:none}
+.room .li{display:contents}
 .dot.k-multi{background:linear-gradient(90deg,#2a1645 33%,#bcda7b 33% 66%,#c9bbdc 66%)}
 @media(max-width:700px){
 .cfilter{gap:6px;margin-bottom:18px}
 .fchip{font-size:10px;letter-spacing:.1em;padding:8px 11px;gap:6px}
 .fchip small{font-size:10px}
-.room{padding:18px 18px 16px}
-.room h3{margin-bottom:8px}
-.room .rsum{display:flex;flex-wrap:wrap;gap:4px 12px;margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:.04em;color:#5b4b78}
-.room .rsum span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.room .rsum .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-.room .lg{margin-top:0!important}.room{min-height:0!important}
-.room .lg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.room{padding:18px 16px 16px}
+.room .lg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px!important}
 .room .cl,.room .cl.eg,.room .lt{display:contents}
 .room .cl .ctag{display:none}
-.room .lg i{width:auto!important;height:auto!important;aspect-ratio:4/3}
-.room .lg i.x{display:none}
-.room .more{display:grid;place-items:center;aspect-ratio:4/3;border-radius:8px;background:#2a1645;color:#fff;font-size:13px;font-weight:800}
+.room .lg i{width:auto!important;height:auto!important;display:flex!important;flex-direction:column;padding:0!important;overflow:hidden;border-radius:9px}
+.room .li{display:grid!important;place-items:center;aspect-ratio:3/2;padding:4px}
+.room .ct{display:block;text-decoration:none;font-size:7.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;text-align:center;line-height:1;padding:4px 2px;background:#f4f1f8;color:#2a1645;white-space:nowrap;overflow:hidden}
+.ct.k-uae{background:#bcda7b}.ct.k-ksa{background:#bce4e3}.ct.k-om{background:#c9bbdc}.ct.k-kw{background:#765da8;color:#fff}.ct.k-me{background:#f6d9b8}.ct.k-eu{background:#fff;box-shadow:inset 0 1px #2a1645}.ct.k-eg{background:#2a1645;color:#fff}.ct.k-multi{background:#2a1645;color:#fff;letter-spacing:.02em}
 .plan.filtering .room:not(.hit){display:none}
-.plan.filtering .lg i:not(.hit){display:none}
-.plan.filtering .lg i.x.hit{display:grid}
-.plan.filtering .more{display:none}
+.plan.filtering .lg i:not(.hit){display:none!important}
 .plan.filtering .room{opacity:1}
 }
 .bcard.plain{cursor:default}.bcard.plain:hover{transform:none;box-shadow:none}
