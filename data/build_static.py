@@ -52,6 +52,7 @@ def main_url(b):
     if 'Branding' in b['kind']: return id_url(b)
     return ph_url(b)
 IND = {r['r']: r['ind'] for r in ROOMS}
+LABEL = {r['r']: {8: 'More industries'}.get(r['r'], r['ind'].replace('Ai', 'AI')) for r in ROOMS}
 
 SERVICES_TEXT = {k: v for k, v in S['serv']}
 SITE_DESC = ("Social Owls is a strategy-first social media and branding agency with offices in Cairo and Dubai, "
@@ -90,7 +91,7 @@ def page(path, title, desc, body, jsonld=None, extra_head=''):
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/" aria-label="Social Owls home"><img src="{src('logos/so-wordmark.png')}" alt="Social Owls" width="120" height="40"></a>
-  <nav class="main" aria-label="Main"><a class="hm" href="/">Home</a><a href="/#rooms">Work</a><a href="/branding/">Branding</a><a class="hm" href="/#services">Services</a><a href="/#contact">Contact</a></nav>
+  <nav class="main" aria-label="Main"><a href="/#about">About</a><a href="/#services">Services</a><a href="/#work">Work</a><a href="/#branding">Branding</a><a href="/#cases">Case studies</a><a href="/#faq">FAQ</a><a class="cta" href="/#contact">Contact</a></nav>
 </div></header>
 <main class="wrap">
 {body}
@@ -131,7 +132,7 @@ def floor_plan():
         bs = room_brands(r['r']); seen = set(); lg = []
         for x in bs + (r.get('others') or []):
             if x.get('logo') and x['logo'] not in seen: seen.add(x['logo']); lg.append(x)
-        out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">R{r["r"]:02d}</span><h3>{e(r["name"])}</h3><span class="ind">{e(r["ind"])}</span>
+        out.append(f'''<a class="room {ACC[r["r"]]}" href="{room_url(r["r"])}"><span class="no">{e(LABEL[r["r"]])}</span><h3>{e(r["name"])}</h3>
 <div class="lg">{''.join(logo_tile(x) for x in lg)}</div></a>''')
     return '<div class="plan">' + ''.join(out) + '</div>'
 
@@ -186,13 +187,23 @@ def home_page():
 </section>
 <section id="about" class="about">
   <div class="sec-head"><div><div class="eyebrow">Who we are</div><h2>Strategy first. <span class="serif">Content second.</span></h2></div></div>
-  <div class="about-grid">
-    <p>Most brands don’t have a content problem. They have a strategy problem. Social Owls builds positioning, identity and social media systems that connect content to business growth, not vanity metrics.</p>
-    <p>What works in Egypt doesn’t automatically work in the UAE. We plan market-specific content around how audiences in each market actually behave, then structure it around awareness, intent and conversion.</p>
-    <p>From brand strategy and visual identity to content creation, community management, media buying and reporting, we run it as one system, so every post has a job to do.</p>
-  </div>
+  <p class="sec-lead">We build positioning, identity and social media systems that connect content to business growth, not vanity metrics.</p>
+  <ol class="pillars">
+    <li><b>Strategy before content.</b> Most brands don’t have a content problem. They have a strategy problem.</li>
+    <li><b>Built for each market.</b> What works in Egypt doesn’t automatically work in the UAE, so we plan around how each audience behaves.</li>
+    <li><b>One system.</b> Identity, content, community, media and reporting run together, so every post has a job to do.</li>
+  </ol>
 </section>
-<section id="rooms">
+<section id="founder">
+  <div class="host"><div class="badge"><img src="{src('logos/so-icon-lp.png')}" alt="" loading="lazy"></div><div>
+    <div class="eyebrow">Your host</div><h2>Mary Gaied</h2><div class="serif">The founding owl.</div>
+    <p>13+ years in digital marketing, on both the agency and the client side. Lead instructor and course developer of the certified Social Media Management course for the Middle East by Skillful Academy. Specialised in brand and digital strategy, content creation, media planning and buying, and reporting.</p></div></div>
+</section>
+<section id="services">
+  <div class="sec-head"><div><div class="eyebrow">How the house runs</div><h2>Seven <span class="serif">services.</span></h2></div></div>
+  <div class="serv">{''.join(f'<div><h3>{e(n)}</h3><ul>{"".join(f"<li>{e(x)}</li>" for x in it)}</ul></div>' for n, it in S["serv"])}</div>
+</section>
+<section id="work"><span id="rooms"></span>
   <div class="sec-head"><div><div class="eyebrow">Our work, by industry</div><h2>Pick a <span class="serif">room.</span></h2></div></div>
   {floor_plan()}
 </section>
@@ -204,15 +215,6 @@ def home_page():
 <section id="cases">
   <div class="sec-head"><div><div class="eyebrow">Case studies</div><h2>Results, <span class="serif">not noise.</span></h2></div></div>
   <div class="cases">{''.join(case_card(c) for c in CASES)}</div>
-</section>
-<section id="services">
-  <div class="sec-head"><div><div class="eyebrow">How the house runs</div><h2>Seven <span class="serif">services.</span></h2></div></div>
-  <div class="serv">{''.join(f'<div><h3>{e(n)}</h3><ul>{"".join(f"<li>{e(x)}</li>" for x in it)}</ul></div>' for n, it in S["serv"])}</div>
-</section>
-<section>
-  <div class="host"><div class="badge"><img src="{src('logos/so-icon-lp.png')}" alt="" loading="lazy"></div><div>
-    <div class="eyebrow">Your host</div><h2>Mary Gaied</h2><div class="serif">The founding owl.</div>
-    <p>13+ years in digital marketing, on both the agency and the client side. Lead instructor and course developer of the certified Social Media Management course for the Middle East by Skillful Academy. Specialised in brand and digital strategy, content creation, media planning and buying, and reporting.</p></div></div>
 </section>
 <section id="faq">
   <div class="sec-head"><div><div class="eyebrow">Good to know</div><h2>Questions, <span class="serif">answered.</span></h2></div></div>
@@ -269,8 +271,8 @@ def room_page(r):
         intro = f'Social Owls’ work in {R["ind"].lower().replace("ai", "AI")}: social media management, content, reels and branding for {names}.'
         title = f'{R["ind"].replace("Ai", "AI")} Social Media & Branding Work | Social Owls'
     nav = ''.join(f'<a href="{room_url(x)}"><small>{"Previous" if x < r else "Next"} room</small>{e(ROOMS[x - 1]["name"])}</a>' if 1 <= x <= 10 else '<span></span>' for x in (r - 1, r + 1))
-    body = f'''<a class="back" href="/#rooms">← Floor plan</a>
-<div class="roomhead {ACC[r]}"><div class="eyebrow">Room {r:02d} · {e(R["ind"].replace("Ai", "AI"))}</div><h1>{e(R["name"])}</h1><p>{e(R["line"])}</p></div>
+    body = f'''<a class="back" href="/#work">← All industries</a>
+<div class="roomhead {ACC[r]}"><div class="eyebrow">{e(LABEL[r])}</div><h1>{e(R["name"])}</h1><p>{e(R["line"])}</p></div>
 <p class="sec-lead">{e(intro)}</p>
 <div class="bgrid">{cards}</div>
 {others}
@@ -347,7 +349,29 @@ for b in B.values():
 
 EXTRA_CSS = '''
 /* static site additions */
-.about-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pillars{list-style:none;counter-reset:p;margin:22px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.pillars li{counter-increment:p;position:relative;padding-top:44px;color:var(--fg-dim);font-size:16px;line-height:1.55}
+.pillars li::before{content:"0" counter(p);position:absolute;top:0;left:0;font-family:var(--serif);font-style:italic;font-weight:700;font-size:28px;color:var(--mid)}
+.pillars b{display:block;color:var(--ink);font-size:18px;margin-bottom:4px}
+.room .no{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:800}
+nav.main a.cta{background:var(--ink);color:#fff}nav.main a.cta:hover{background:var(--mid);color:#fff}
+section[id]{scroll-margin-top:84px}
+@media (max-width:760px){
+ header.top .wrap{flex-wrap:wrap;gap:6px;padding-block:10px 6px}
+ nav.main{margin-left:0;width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;width:calc(100% + 32px)}
+ nav.main::-webkit-scrollbar{display:none}
+ nav.main a{flex:none;font-size:12px;padding:7px 11px}
+ nav.main a.hm{display:inline-block}
+ .pillars{grid-template-columns:1fr;gap:18px;margin-top:16px}
+ .pillars li{padding:0 0 0 44px;font-size:15px}
+ .pillars li::before{font-size:22px;top:-2px}
+ .pillars b{font-size:16px}
+ section[id]{scroll-margin-top:112px}
+ .serv{gap:10px}.serv div{padding:16px 18px}.serv h3{font-size:17px;margin-bottom:6px}
+ .serv ul{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:0;font-size:14px;line-height:1.6}
+ .serv li:not(:last-child)::after{content:"·";margin:0 7px;color:var(--lav)}
+ .s3 b{font-size:26px}
+}
 .about-grid p{margin:0;font-size:17px;color:var(--fg-dim);background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px}
 .sec-lead{color:var(--fg-dim);font-size:17px;max-width:70ch;margin:14px 0 6px}
 .sec-head .more{font-weight:700;color:var(--mid);text-decoration:none}
