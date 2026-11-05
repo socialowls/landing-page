@@ -378,15 +378,15 @@ EXTRA_CSS = '''
 .case-logo{order:0;float:right;width:76px;height:56px;padding:8px;border-radius:12px;margin:0 0 10px 16px}.case-logo img{max-height:38px}
 .case .eyebrow{font-size:11px;letter-spacing:.18em;line-height:1.5}
 .case h3{font-size:25px;line-height:1.15;margin-top:10px}
-.case-sub{font-size:18px;line-height:1.3;margin-top:10px}
-.case-intro{font-size:15px;font-weight:400;line-height:1.6;margin-top:14px;color:#ddd3ee}
-.case-cols{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:22px;margin:24px -22px 0;padding:0 22px 4px;scrollbar-width:none}
+.case-sub{font-size:17px;line-height:1.3;margin-top:8px}
+.case-intro{display:none}
+.case-cols{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:22px;margin:22px -22px 0;padding:0 22px 4px;scrollbar-width:none}
 .case-cols::-webkit-scrollbar{display:none}
 .cc{flex:0 0 80%;scroll-snap-align:start;min-height:0;padding:20px 20px 22px}
 .cc h4{margin-bottom:10px}
 .cc p{font-size:15px;font-weight:500;line-height:1.6}
 .cc:not(:last-child)::after{display:none}
-.swipe-hint{display:block;font-size:12px;color:#b9abd3;margin-top:10px}
+
 .case-link{margin-top:18px}}
 '''
 open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS)
