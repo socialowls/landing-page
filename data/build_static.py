@@ -408,7 +408,10 @@ def brand_page(b, mode):
     parts = []
     if mode == 'b' and b['reels']:
         parts.append('<h2 class="sub">Reels · tap to watch</h2><div class="rail"><div class="track reels">' + ''.join(f'<a class="reel" href="{e(x["url"])}" target="_blank" rel="noopener"><div class="th"><img src="{src(x["thumb"])}" alt="{e(b["name"])} reel: {e(x["title"])}" loading="lazy"><div class="pl"><i></i></div></div><span>{e(x["title"])}</span></a>' for x in b['reels']) + '</div><button class="rail-btn prev" type="button" aria-label="Scroll left">‹</button><button class="rail-btn next" type="button" aria-label="Scroll right">›</button></div>')
-    if mode == 'b' and b['posts']:
+    if mode == 'b' and b.get('markets'):
+        for m in b['markets']:
+            parts.append(f'<h2 class="sub">{e(m["name"])} · posts <a class="handle" href="https://www.instagram.com/{e(m["handle"])}/" target="_blank" rel="noopener">@{e(m["handle"])}</a></h2><div class="rail"><div class="track posts">' + ''.join(f'<button class="shot" type="button" data-z="{src(p)}"><img src="{src(p)}" alt="{e(m["name"])} social media post {n + 1} designed by Social Owls" loading="lazy"></button>' for n, p in enumerate(m['posts'])) + '</div><button class="rail-btn prev" type="button" aria-label="Scroll left">‹</button><button class="rail-btn next" type="button" aria-label="Scroll right">›</button></div>')
+    elif mode == 'b' and b['posts']:
         parts.append('<h2 class="sub">Social media posts</h2><div class="rail"><div class="track posts">' + ''.join(f'<button class="shot" type="button" data-z="{src(p)}"><img src="{src(p)}" alt="{e(b["name"])} social media post {n + 1} designed by Social Owls" loading="lazy"></button>' for n, p in enumerate(b['posts'])) + '</div><button class="rail-btn prev" type="button" aria-label="Scroll left">‹</button><button class="rail-btn next" type="button" aria-label="Scroll right">›</button></div>')
     if show_slides and slides:
         h = 'Identity &amp; applications' if mode == 'id' else 'Photography' if mode == 'ph' else 'Behind the work'
@@ -422,6 +425,7 @@ def brand_page(b, mode):
 <div class="chips" style="margin-top:14px">{"".join(f"<span class=chip>{e(k)}</span>" for k in services_of(b, mode))}</div>
 {('<div class="xlinks">' + ''.join(f'<a href="{u}">{t} →</a>' for u, t in other) + '</div>') if other else ''}</div></div>
 <p class="sec-lead">{e(about)}</p>
+{(f'<div class="mnote"><b>{len(b["markets"])} markets</b><span>{e(b["note"])}</span><div class="mk">' + ''.join(f'<a href="https://www.instagram.com/{e(m["handle"])}/" target="_blank" rel="noopener">{e(m["name"])}</a>' for m in b['markets']) + '</div></div>') if mode == 'b' and b.get('note') and b.get('markets') else ''}
 {''.join(parts)}
 <div class="pager">{pager}</div>'''
     title = f'{b["name"]} · {"Brand Identity" if mode == "id" else "Photography" if mode == "ph" else "Social Media"} | Social Owls'
@@ -584,6 +588,13 @@ open(REPO + '/site.css', 'w').write(CSS + EXTRA_CSS + COLOR_CSS + '''
 .plan.filtering .lg i.hit{transform:scale(1.04)}
 .plan.filtering .room:not(.hit){opacity:.45}
 .room .lt{display:contents}
+.mnote{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;background:#2a1645;color:#fff;border-radius:18px;padding:18px 22px;margin:0 0 28px}
+.mnote b{font-family:var(--serif);font-style:italic;font-size:26px;color:#bcda7b;font-weight:700}
+.mnote span{flex:1;min-width:220px;font-size:15px;line-height:1.5}
+.mnote .mk{display:flex;gap:8px;flex-wrap:wrap}
+.mnote .mk a{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#2a1645;background:#bce4e3;padding:8px 12px;border-radius:999px;text-decoration:none}
+.mnote .mk a:nth-child(2){background:#bcda7b}.mnote .mk a:nth-child(3){background:#c9bbdc}
+h2.sub .handle{font-family:var(--sans);font-style:normal;font-size:13px;font-weight:700;color:#765da8;margin-left:8px;text-decoration:none}
 .room .rsum,.room .more,.room .ct{display:none}
 .room .li{display:contents}
 .dot.k-multi{background:linear-gradient(90deg,#2a1645 33%,#bcda7b 33% 66%,#c9bbdc 66%)}

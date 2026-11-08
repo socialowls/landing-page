@@ -309,6 +309,13 @@ p,li{font-weight:400}
 .plan.filtering .lg i.hit{transform:scale(1.04)}
 .plan.filtering .room:not(.hit){opacity:.45}
 .room .lt{display:contents}
+.mnote{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;background:#2a1645;color:#fff;border-radius:18px;padding:18px 22px;margin:0 0 28px}
+.mnote b{font-family:var(--serif);font-style:italic;font-size:26px;color:#bcda7b;font-weight:700}
+.mnote span{flex:1;min-width:220px;font-size:15px;line-height:1.5}
+.mnote .mk{display:flex;gap:8px;flex-wrap:wrap}
+.mnote .mk a{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#2a1645;background:#bce4e3;padding:8px 12px;border-radius:999px;text-decoration:none}
+.mnote .mk a:nth-child(2){background:#bcda7b}.mnote .mk a:nth-child(3){background:#c9bbdc}
+h2.sub .handle{font-family:var(--sans);font-style:normal;font-size:13px;font-weight:700;color:#765da8;margin-left:8px;text-decoration:none}
 .room .rsum,.room .more,.room .ct{display:none}
 .room .li{display:contents}
 .dot.k-multi{background:linear-gradient(90deg,#2a1645 33%,#bcda7b 33% 66%,#c9bbdc 66%)}
