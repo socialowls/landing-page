@@ -405,6 +405,7 @@ def brand_page(b, mode):
     if mode == 'b' and b['reels']: counts.append(f'{len(b["reels"])} reels')
     if show_slides and slides: counts.append(f'{len(slides)} {"identity and application boards" if mode == "id" else "photographs" if mode == "ph" else "project boards"}')
     about = f'{b["name"]} is a {ind.lower().replace("ai","AI")} client of Social Owls. Our work for {b["name"]} on this page: {what}.' + (f' This page shows {", ".join(counts)}.' if counts else '')
+    if b.get('about'): about = b['about']
     parts = []
     if mode == 'b' and b['reels']:
         parts.append('<h2 class="sub">Reels · tap to watch</h2><div class="rail"><div class="track reels">' + ''.join(f'<a class="reel" href="{e(x["url"])}" target="_blank" rel="noopener"><div class="th"><img src="{src(x["thumb"])}" alt="{e(b["name"])} reel: {e(x["title"])}" loading="lazy"><div class="pl"><i></i></div></div><span>{e(x["title"])}</span></a>' for x in b['reels']) + '</div><button class="rail-btn prev" type="button" aria-label="Scroll left">‹</button><button class="rail-btn next" type="button" aria-label="Scroll right">›</button></div>')
