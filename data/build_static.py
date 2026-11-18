@@ -237,7 +237,7 @@ CASES = [
  dict(slug='project-pavilion', eyebrow='Case study · Branding', title='Built from day one.', sub='Project Pavilion, from blank page to brand.',
       intro='A project-management software brand we have worked with from the very beginning, before it had a logo, a look or a voice.',
       cols=[('The brief','Give a new software system a brand people trust with their work: clear, organised and confident from the first screen.'),
-            ('What we did','Logo, brand guidelines and the line “Plan. Track. Deliver.” Then the ongoing content and design that put the brand to work.'),
+            ('What we did','Logo, brand guidelines and the line “Plan. Track. Deliver.” Then the content and design that put the brand to work.'),
             ('What it means','One partner from first sketch to everyday posts, so the brand that launched is the brand people still see today.')]),
  dict(slug='her', eyebrow='Case study · Branding', title='The grammar of a brand.', sub='her’, premium sportswear for women.',
       intro='Branding and brand guidelines for a premium women’s sportswear label, built around one small, possessive mark.',
